@@ -7,11 +7,11 @@ if ! command -v nix-build; then
   exit 1
 fi
 
-echo INFO: building Alejandra
+echo INFO: building nixfmt
 
 nix-build \
-  --out-link result-alejandra \
-  https://github.com/kamadorueda/alejandra/tarball/4.0.0
+  --out-link result-nixfmt \
+  https://github.com/kamadorueda/nixfmt/tarball/0.1.0
 
-echo INFO: running Alejandra:
-result-alejandra/bin/alejandra -- -q "${@}"
+echo INFO: running nixfmt:
+result-nixfmt/bin/nixfmt -- -q "${@}"

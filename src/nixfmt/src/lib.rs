@@ -1,7 +1,7 @@
-//! Alejandra takes your Nix code and re-formats it in a consistent style.
+//! nixfmt takes your Nix code and re-formats it in a consistent style.
 //!
 //! For more information please visit the
-//! [Alejandra repository on GitHub](https://github.com/kamadorueda/alejandra).
+//! [nixfmt repository on GitHub](https://github.com/kamadorueda/nixfmt).
 #![deny(missing_docs)]
 #![deny(rustdoc::bare_urls)]
 #![deny(rustdoc::broken_intra_doc_links)]

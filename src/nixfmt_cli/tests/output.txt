@@ -1,11 +1,11 @@
 ===
 args: ["--help"]
 stdout:
-  Alejandra 4.0.0
+  nixfmt 0.1.0
   The Uncompromising Nix Code Formatter
   
   USAGE:
-      alejandra [OPTIONS] [INCLUDE]...
+      nixfmt [OPTIONS] [INCLUDE]...
   
   ARGS:
       <INCLUDE>...    Files or directories, or a single "-" (or leave empty)
@@ -21,7 +21,7 @@ stdout:
   
           --experimental-config <EXPERIMENTAL_CONFIG>
               [Experimental] Path to a config file. If not provided, it'll default
-              to `alejandra.toml` in the current directory. If not found, it'll
+              to `nixfmt.toml` in the current directory. If not found, it'll
               use the default style
   
       -h, --help
@@ -33,12 +33,12 @@ stdout:
   
       -t, --threads <THREADS>
               Number of formatting threads to spawn. Defaults to the number of
-              physical CPUs [env: ALEJANDRA_THREADS=1]
+              physical CPUs [env: NIXFMT_THREADS=1]
   
       -V, --version
               Print version information
   
-  Alejandra will exit with status code:
+  nixfmt will exit with status code:
     1, if any error occurs.
     2, if --check was used and any file requires formatting.
     0, otherwise.
@@ -47,7 +47,7 @@ exit code: Some(0)
 ===
 args: ["--version"]
 stdout:
-  Alejandra 4.0.0
+  nixfmt 0.1.0
 
 exit code: Some(0)
 ===
@@ -101,7 +101,7 @@ stderr:
   Use --help to see all command line options.
   use --quiet to suppress this and other messages.
   
-  Congratulations! Your code complies with the Alejandra style.
+  Congratulations! Your code complies with the nixfmt style.
   
 
 exit code: Some(0)
@@ -187,7 +187,7 @@ stderr:
   Checking style in 0 files using 1 thread.
   
   
-  Congratulations! Your code complies with the Alejandra style.
+  Congratulations! Your code complies with the nixfmt style.
   
 
 exit code: Some(0)
@@ -236,7 +236,7 @@ stderr:
   Checking style in 1 file using 1 thread.
   
   
-  Congratulations! Your code complies with the Alejandra style.
+  Congratulations! Your code complies with the nixfmt style.
   
 
 exit code: Some(0)
@@ -268,13 +268,13 @@ exit code: Some(1)
 args: ["--check", "tests/inputs/error.nix", "-qq"]
 exit code: Some(1)
 ===
-args: ["--check", "tests/inputs/unchanged.nix", "--experimental-config", "../../alejandra.toml", "--threads", "1"]
+args: ["--check", "tests/inputs/unchanged.nix", "--experimental-config", "../../nixfmt.toml", "--threads", "1"]
 stderr:
-  Using config from: ../../alejandra.toml
+  Using config from: ../../nixfmt.toml
   Checking style in 1 file using 1 thread.
   
   
-  Congratulations! Your code complies with the Alejandra style.
+  Congratulations! Your code complies with the nixfmt style.
   
 
 exit code: Some(0)
@@ -285,7 +285,7 @@ stderr:
   Checking style in 1 file using 1 thread.
   
   
-  Congratulations! Your code complies with the Alejandra style.
+  Congratulations! Your code complies with the nixfmt style.
   
 
 exit code: Some(0)

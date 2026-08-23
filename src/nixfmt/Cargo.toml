@@ -28,10 +28,10 @@ authors = ["Kevin Amado <kamadorueda@gmail.com>"]
 description = "The Uncompromising Nix Code Formatter"
 edition = "2021"
 license = "Unlicense"
-name = "alejandra"
+name = "nixfmt"
 readme = "../../README.md"
-repository = "https://github.com/kamadorueda/alejandra"
-version = "4.0.0"
+repository = "https://github.com/kamadorueda/nixfmt"
+version = "0.1.0"
 
 [dev-dependencies]
 pretty_assertions = "1.3.0"

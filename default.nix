@@ -14,11 +14,11 @@ in
     else
       builtins.throw ''
 
-        Alejandra does not support the system: ${system}
+        nixfmt does not support the system: ${system}
 
         Please consider creating an issue requesting
         support for such system:
-        https://github.com/kamadorueda/alejandra
+        https://github.com/kamadorueda/nixfmt
 
         Thank you!
 

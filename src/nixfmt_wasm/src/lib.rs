@@ -2,7 +2,7 @@ use std::panic;
 
 use wasm_bindgen::prelude::*;
 
-use alejandra::config;
+use nixfmt::config;
 
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
@@ -18,5 +18,5 @@ pub fn format(before: String, path: String, config_json: Option<String>) -> Resu
         None => Default::default(),
     };
 
-    Ok(alejandra::format::in_memory(path, before, cfg).1)
+    Ok(nixfmt::format::in_memory(path, before, cfg).1)
 }

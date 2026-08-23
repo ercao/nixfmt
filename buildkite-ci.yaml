@@ -13,7 +13,7 @@ steps:
       - git clone --branch=master --depth 1 --origin=upstream file:///data/nixpkgs
 
       - echo --- Formatting - before
-      - nix run github:kamadorueda/alejandra -- --quiet nixpkgs
+      - nix run github:kamadorueda/nixfmt -- --quiet nixpkgs
       - git -C nixpkgs add .
       - git -C nixpkgs commit -m formatting-before -q
       - git -C nixpkgs branch formatting-before

@@ -1,8 +1,8 @@
 # Neovim integration
 
-In order to use Alejandra with
+In order to use nixfmt with
 [Neovim](https://neovim.io/)
-please use the `:%!alejandra -qq` command
+please use the `:%!nixfmt -qq` command
 to format the current buffer,
 or use any of the following plugins:
 

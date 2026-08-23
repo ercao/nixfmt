@@ -1,6 +1,6 @@
 # Pre-commit-hooks.nix integration
 
-In order to use Alejandra with
+In order to use nixfmt with
 [pre-commit-hooks.nix](https://github.com/cachix/pre-commit-hooks.nix)
 use a configuration file like the following:
 
@@ -8,7 +8,7 @@ use a configuration file like the following:
 {
   pre-commit-check = pre-commit-hooks.lib.${system}.run {
     hooks = {
-      alejandra.enable = true;
+      nixfmt.enable = true;
     };
   };
 }

@@ -1,6 +1,6 @@
-# Alejandra's Style Guide
+# nixfmt's Style Guide
 
-Alejandra's mission is to produce a **consistent style**
+nixfmt's mission is to produce a **consistent style**
 that is **easy to read**
 and produces **clean diffs**.
 This means trading aggressively compact code
@@ -9,7 +9,7 @@ for regularity and ease of modification.
 ## Function
 
 > Discussions:
-> [1](https://github.com/kamadorueda/alejandra/issues/95)
+> [1](https://github.com/kamadorueda/nixfmt/issues/95)
 
 ### With Destructured Arguments
 

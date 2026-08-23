@@ -4,16 +4,16 @@ agents:
 steps:
   - label: build
     artifacts:
-      - alejandra-*
+      - nixfmt-*
     command:
       - echo +++
-      - nix build .#alejandra-binaries
+      - nix build .#nixfmt-binaries
       - nix-store
         --query
         --include-outputs $(nix-store --query --deriver result)
         --requisites |
         grep -v '\.drv$$' |
-        cachix push alejandra
+        cachix push nixfmt
       - cp -L result/* .
 
   - label: coverage
@@ -26,5 +26,5 @@ steps:
       - direnv allow
       - eval "$(direnv export bash)"
       - echo +++ Run tests
-      - cd src/alejandra
+      - cd src/nixfmt
       - cargo tarpaulin --coveralls "$${COVERALLS_REPO_TOKEN}"

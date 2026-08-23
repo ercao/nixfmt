@@ -1,6 +1,6 @@
 # Vim integration
 
-In order to use Alejandra with
+In order to use nixfmt with
 [Vim](https://www.vim.org/)
-please use the `:%!alejandra -qq` command
+please use the `:%!nixfmt -qq` command
 to format the current buffer.

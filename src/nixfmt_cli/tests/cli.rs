@@ -87,7 +87,7 @@ const CASES: &[TestCase] = &[
             "--check",
             "tests/inputs/unchanged.nix",
             "--experimental-config",
-            "../../alejandra.toml",
+            "../../nixfmt.toml",
             "--threads",
             "1",
         ],
@@ -128,7 +128,7 @@ fn cases() {
         output_got.push_str(&format!("args: {:?}\n", case.args));
 
         let mut child = Command::new("cargo")
-            .env("ALEJANDRA_THREADS", "1")
+            .env("NIXFMT_THREADS", "1")
             .args(["run", "--quiet", "--"])
             .args(case.args)
             .stdin(Stdio::piped())

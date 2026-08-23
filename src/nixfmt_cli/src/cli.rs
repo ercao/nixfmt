@@ -1,7 +1,7 @@
 use std::fs::read_to_string;
 use std::io::Read;
 
-use alejandra::config::Config;
+use nixfmt::config::Config;
 use clap::value_parser;
 use clap::ArgAction;
 use clap::Parser;
@@ -15,10 +15,10 @@ use crate::verbosity::Verbosity;
 /// The Uncompromising Nix Code Formatter.
 #[derive(Debug, Parser)]
 #[clap(
-    name="Alejandra",
+    name="nixfmt",
 
     after_help = concat!(
-        "Alejandra will exit with status code:\n",
+        "nixfmt will exit with status code:\n",
         "  1, if any error occurs.\n",
         "  2, if --check was used and any file requires formatting.\n",
         "  0, otherwise.",
@@ -41,7 +41,7 @@ struct CLIArgs {
     check: bool,
 
     /// [Experimental] Path to a config file. If not provided, it'll default to
-    /// `alejandra.toml` in the current directory. If not found, it'll use the
+    /// `nixfmt.toml` in the current directory. If not found, it'll use the
     /// default style.
     #[clap(long)]
     experimental_config: Option<String>,
@@ -50,7 +50,7 @@ struct CLIArgs {
     /// physical CPUs.
     #[clap(
         long, short,
-        env = "ALEJANDRA_THREADS",
+        env = "NIXFMT_THREADS",
         value_parser = value_parser!(u8).range(1..),
     )]
     threads: Option<u8>,
@@ -64,7 +64,7 @@ struct CLIArgs {
 #[derive(Clone)]
 struct FormattedPath {
     pub path:   String,
-    pub status: alejandra::format::Status,
+    pub status: nixfmt::format::Status,
 }
 
 fn format_stdin(config: Config, verbosity: Verbosity) -> FormattedPath {
@@ -82,7 +82,7 @@ fn format_stdin(config: Config, verbosity: Verbosity) -> FormattedPath {
         .expect("Unable to read stdin.");
 
     let (status, data) =
-        alejandra::format::in_memory(path.clone(), before.clone(), config);
+        nixfmt::format::in_memory(path.clone(), before.clone(), config);
 
     print!("{data}");
 
@@ -117,9 +117,9 @@ fn format_paths(
         .map(|path| {
             pool.spawn_with_handle(async move {
                 let status =
-                    alejandra::format::in_fs(path.clone(), config, in_place);
+                    nixfmt::format::in_fs(path.clone(), config, in_place);
 
-                if let alejandra::format::Status::Changed(changed) = status {
+                if let nixfmt::format::Status::Changed(changed) = status {
                     if changed && verbosity.allows_info() {
                         println!(
                             "{}: {path}",
@@ -176,7 +176,7 @@ pub fn main() -> ! {
     let errors = formatted_paths
         .iter()
         .filter(|formatted_path| {
-            matches!(formatted_path.status, alejandra::format::Status::Error(_))
+            matches!(formatted_path.status, nixfmt::format::Status::Error(_))
         })
         .count();
 
@@ -188,7 +188,7 @@ pub fn main() -> ! {
                 if errors == 1 { "" } else { "s" }
             );
             for formatted_path in formatted_paths {
-                if let alejandra::format::Status::Error(error) =
+                if let nixfmt::format::Status::Error(error) =
                     formatted_path.status
                 {
                     eprintln!("- {}: {error}", formatted_path.path);
@@ -202,7 +202,7 @@ pub fn main() -> ! {
     let changed = formatted_paths
         .iter()
         .filter(|formatted_path| match formatted_path.status {
-            alejandra::format::Status::Changed(changed) => changed,
+            nixfmt::format::Status::Changed(changed) => changed,
             _ => false,
         })
         .count();
@@ -234,7 +234,7 @@ pub fn main() -> ! {
     if verbosity.allows_info() {
         eprintln!();
         eprintln!(
-            "Congratulations! Your code complies with the Alejandra style."
+            "Congratulations! Your code complies with the nixfmt style."
         );
         eprintln!();
         eprint!("{}", random_ad());
@@ -256,7 +256,7 @@ fn try_resolve_config(path: Option<&str>) -> Result<Config, String> {
 }
 
 fn resolve_config(path: Option<&str>, verbosity: Verbosity) -> Config {
-    let default_config_path = "alejandra.toml";
+    let default_config_path = "nixfmt.toml";
 
     // If no path was provided and the default config path exists, use it
     let path = path.or_else(|| {

@@ -2,22 +2,22 @@ const { execFile } = require("child_process");
 const vscode = require("vscode");
 
 const activate = (_) => {
-  const outputChannel = vscode.window.createOutputChannel("Alejandra");
+  const outputChannel = vscode.window.createOutputChannel("nixfmt");
 
   vscode.languages.registerDocumentFormattingEditProvider("nix", {
     provideDocumentFormattingEdits(document, _) {
       const config = {
-        alejandra: vscode.workspace.getConfiguration("alejandra"),
+        nixfmt: vscode.workspace.getConfiguration("nixfmt"),
       };
 
       return new Promise((resolve, reject) => {
         try {
           outputChannel.appendLine(
-            `Running Alejandra with settings: ${JSON.stringify(config)}`
+            `Running nixfmt with settings: ${JSON.stringify(config)}`
           );
 
           const process = execFile(
-            config.alejandra.program,
+            config.nixfmt.program,
             [],
             {},
             (error, stdout, stderr) => {
@@ -25,7 +25,7 @@ const activate = (_) => {
                 outputChannel.appendLine(`error: ${error}`);
                 outputChannel.appendLine(`stderr: ${stderr}`);
                 vscode.window.showErrorMessage(
-                  `While executing Alejandra with settings: ` +
+                  `While executing nixfmt with settings: ` +
                     `${JSON.stringify(config)}, ` +
                     `${error}`
                 );
@@ -53,7 +53,7 @@ const activate = (_) => {
           process.stdin.end();
         } catch (error) {
           vscode.window.showErrorMessage(
-            `While executing Alejandra with settings: ` +
+            `While executing nixfmt with settings: ` +
               `${JSON.stringify(config)} ` +
               `${error}`
           );

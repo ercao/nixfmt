@@ -1,10 +1,13 @@
-<h1 align="center">Alejandra 💅</h2>
+<h1 align="center">nixfmt 💅</h2>
 
 <p align="center">The Uncompromising Nix Code Formatter</p>
 
+> [!NOTE]
+> This is a personal Alejandra-compatible fork. It is not the NixOS/nixfmt project or the `nixfmt` package from nixpkgs.
+
 <p align="center">
   <a
-    href="https://buildkite.com/kamadorueda/alejandra"
+    href="https://buildkite.com/kamadorueda/nixfmt"
   >
     <img
       alt="CI/CD"
@@ -13,16 +16,16 @@
     </img>
   </a>
   <a
-    href="https://coveralls.io/github/kamadorueda/alejandra?branch=main"
+    href="https://coveralls.io/github/kamadorueda/nixfmt?branch=main"
   >
     <img
       alt="Coverage"
-      src="https://coveralls.io/repos/github/kamadorueda/alejandra/badge.svg?branch=main"
+      src="https://coveralls.io/repos/github/kamadorueda/nixfmt/badge.svg?branch=main"
     >
     </img>
   </a>
   <a
-    href="https://github.com/kamadorueda/alejandra/blob/main/UNLICENSE"
+    href="https://github.com/kamadorueda/nixfmt/blob/main/UNLICENSE"
   >
     <img
       alt="License: The Unlicense"
@@ -30,11 +33,11 @@
     >
   </a>
   <a
-    href="https://github.com/kamadorueda/alejandra"
+    href="https://github.com/kamadorueda/nixfmt"
   >
     <img
-      alt="style: Alejandra"
-      src="https://img.shields.io/badge/code%20style-Alejandra-green.svg"
+      alt="style: nixfmt"
+      src="https://img.shields.io/badge/code%20style-nixfmt-green.svg"
     >
   </a>
 
@@ -42,7 +45,7 @@
 <p align="center">
   Try it on your browser!
   <a
-    href="https://kamadorueda.github.io/alejandra/"
+    href="https://kamadorueda.github.io/nixfmt/"
   >
     here
   </a>
@@ -92,7 +95,7 @@
 
   We integrate with common code editors and workflows:
 
-  - [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=kamadorueda.alejandra)
+  - [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=kamadorueda.nixfmt)
   - [Neovim](./integrations/neovim/README.md)
   - [Vim](./integrations/vim/README.md)
   - [GNU Emacs](./integrations/gnu-emacs/README.md)
@@ -105,50 +108,46 @@
 ### On the web editor
 
 Please visit:
-[kamadorueda.github.io/alejandra](https://kamadorueda.github.io/alejandra/).
+[kamadorueda.github.io/nixfmt](https://kamadorueda.github.io/nixfmt/).
 
 ### Prebuilt binaries
 
 You can download a binary for your platform:
 
-- [aarch64-unknown-linux-musl](https://github.com/kamadorueda/alejandra/releases/download/4.0.0/alejandra-aarch64-unknown-linux-musl)
-- [x86_64-unknown-linux-musl](https://github.com/kamadorueda/alejandra/releases/download/4.0.0/alejandra-x86_64-unknown-linux-musl)
+- [aarch64-unknown-linux-musl](https://github.com/kamadorueda/nixfmt/releases/download/0.1.0/nixfmt-aarch64-unknown-linux-musl)
+- [x86_64-unknown-linux-musl](https://github.com/kamadorueda/nixfmt/releases/download/0.1.0/nixfmt-x86_64-unknown-linux-musl)
 
 Make it executable (`$ chmod +x`)
-and run Alejandra with:
+and run nixfmt with:
 
 ```bash
-$ ./alejandra --help
+$ ./nixfmt --help
 ```
 
 or:
 
 ```bash
-$ /path/to/alejandra --help
+$ /path/to/nixfmt --help
 ```
-
-### From [Nixpkgs](https://github.com/nixos/nixpkgs)
-
-Please visit: [search.nixos.org/packages?query=alejandra](https://search.nixos.org/packages?channel=unstable&show=alejandra&from=0&size=50&sort=relevance&type=packages&query=alejandra).
 
 ### Nix installation
 
 - Nix stable:
 
   ```bash
-  $ nix-env -ivf https://github.com/kamadorueda/alejandra/tarball/4.0.0
+  $ nix-env -ivf https://github.com/kamadorueda/nixfmt/tarball/0.1.0
   ```
 
 - Nix with [Flakes](https://wiki.nixos.org/wiki/Flakes):
 
   ```bash
-  $ nix profile install github:kamadorueda/alejandra/4.0.0
+  $ nix profile install github:kamadorueda/nixfmt/0.1.0
   ```
 
-Then run Alejandra with:
+Then run nixfmt with:
 
 ```bash
-$ alejandra --help
+$ nixfmt --help
 ```
 
 ### NixOS installation
@@ -157,14 +156,14 @@ $ alejandra --help
 
   ```nix
   let
-    alejandra =
+    nixfmt =
       (import (builtins.fetchTarball {
-        url = "https://github.com/kamadorueda/alejandra/tarball/4.0.0";
+        url = "https://github.com/kamadorueda/nixfmt/tarball/0.1.0";
         sha256 = "0000000000000000000000000000000000000000000000000000";
       }) {})
       .outPath;
   in {
-    environment.systemPackages = [alejandra];
+    environment.systemPackages = [nixfmt];
   }
   ```
 
@@ -175,11 +174,11 @@ $ alejandra --help
     inputs = {
       nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
-      alejandra.url = "github:kamadorueda/alejandra/4.0.0";
-      alejandra.inputs.nixpkgs.follows = "nixpkgs";
+      nixfmt.url = "github:kamadorueda/nixfmt/0.1.0";
+      nixfmt.inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    outputs = {alejandra, nixpkgs, ...}: {
+    outputs = {nixfmt, nixpkgs, ...}: {
       nixosConfigurations = {
         example = nixpkgs.lib.nixosSystem rec {
           # We support: aarch64-darwin, aarch64-linux, i686-linux, x86_64-darwin, x86_64-linux
@@ -187,7 +186,7 @@ $ alejandra --help
 
           modules = [
             {
-              environment.systemPackages = [alejandra.defaultPackage.${system}];
+              environment.systemPackages = [nixfmt.defaultPackage.${system}];
             }
             # Import your other modules here
             # ./path/to/my/module.nix
@@ -199,21 +198,15 @@ $ alejandra --help
   }
   ```
 
-### From [Homebrew](https://brew.sh)
-
-```bash
-$ brew install alejandra
-```
-
 ## (experimental) Configuration Options
 
-You can configure Alejandra through a file named `alejandra.toml`.
+You can configure nixfmt through a file named `nixfmt.toml`.
 This file will be automatically detected if found in the same directory
-where Alejandra is being run from,
-or you can tell Alejandra to use a different location by using the
-`--experimental-config ./path/to/alejandra.toml` flag in the CLI.
+where nixfmt is being run from,
+or you can tell nixfmt to use a different location by using the
+`--experimental-config ./path/to/nixfmt.toml` flag in the CLI.
 
-You can find a full configuration file and the supported options here: [alejandra.toml](./alejandra.toml).
+You can find a full configuration file and the supported options here: [nixfmt.toml](./nixfmt.toml).
 
 ## Cool libraries
 
@@ -229,12 +222,12 @@ You can find a full configuration file and the supported options here: [alejandr
 
 ## Versioning
 
-We use [semver](https://semver.org/) to version Alejandra.
+We use [semver](https://semver.org/) to version nixfmt.
 
 Our public API consists of:
 
 - The formatting rules (a.k.a. the style).
-- The CLI tool (`$ alejandra`),
+- The CLI tool (`$ nixfmt`),
   command line flags,
   positional arguments,
   exit codes,
@@ -248,7 +241,7 @@ Please read: [CHANGELOG](./CHANGELOG.md).
 
 ## Contributors
 
-The following people have helped improving Alejandra.
+The following people have helped improving nixfmt.
 
 Thank you ❤️
 
@@ -303,7 +296,7 @@ and [Yorick van Pelt](https://github.com/yorickvP).
 
     ```bash
     # x86_64-unknown-linux-gnu
-    $ time alejandra --threads $threads /path/to/nixpkgs
+    $ time nixfmt --threads $threads /path/to/nixpkgs
     ```
 
     Results:
@@ -322,7 +315,7 @@ and [Yorick van Pelt](https://github.com/yorickvP).
         $ nix-env -qaf . --drv-path --xml > before
         ```
 
-    1.  Now format with Alejandra and run:
+    1.  Now format with nixfmt and run:
 
         ```bash
         $ nix-env -qaf . --drv-path --xml > after
@@ -340,7 +333,7 @@ and [Yorick van Pelt](https://github.com/yorickvP).
     you get a semantical difference.
 
     This is something that should be solved on Nixpkgs
-    and not a bug in Alejandra.
+    and not a bug in nixfmt.
     For example:
 
     - https://github.com/NixOS/nixpkgs/pull/178378

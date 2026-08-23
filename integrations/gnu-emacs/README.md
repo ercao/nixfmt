@@ -1,6 +1,6 @@
 # Emacs integration
 
-In order to use Alejandra with
+In order to use nixfmt with
 [Emacs](https://www.gnu.org/software/emacs/)
 please use any of the following plugins:
 

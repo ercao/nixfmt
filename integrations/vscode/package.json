@@ -13,24 +13,24 @@
   "contributes": {
     "configuration": {
       "properties": {
-        "alejandra.program": {
-          "default": "alejandra",
-          "description": "Specifies an alternative full path to the Alejandra executable.",
+        "nixfmt.program": {
+          "default": "nixfmt",
+          "description": "Specifies an alternative full path to the nixfmt executable.",
           "type": [
             "string"
           ]
         }
       },
-      "title": "Alejandra"
+      "title": "nixfmt"
     },
     "configurationDefaults": {
       "[nix]": {
-        "editor.defaultFormatter": "kamadorueda.alejandra",
+        "editor.defaultFormatter": "kamadorueda.nixfmt",
         "editor.formatOnPaste": true,
         "editor.formatOnSave": true,
         "editor.formatOnType": false
       },
-      "alejandra.program": "alejandra"
+      "nixfmt.program": "nixfmt"
     },
     "languages": [
       {
@@ -50,7 +50,7 @@
     "ovsx": "*",
     "vsce": "*"
   },
-  "displayName": "Alejandra 💅",
+  "displayName": "nixfmt 💅",
   "engines": {
     "vscode": "^1.64.0"
   },
@@ -60,11 +60,11 @@
   },
   "license": "Unlicense",
   "main": "./extension.js",
-  "name": "alejandra",
+  "name": "nixfmt",
   "publisher": "kamadorueda",
   "repository": {
     "type": "git",
-    "url": "https://github.com/kamadorueda/alejandra"
+    "url": "https://github.com/kamadorueda/nixfmt"
   },
-  "version": "4.0.0"
+  "version": "0.1.0"
 }

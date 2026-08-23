@@ -2,8 +2,8 @@ use std::collections::HashMap;
 use std::io::Write;
 use std::path::PathBuf;
 
-use alejandra::config::Config;
-use alejandra::config::Indentation;
+use nixfmt::config::Config;
+use nixfmt::config::Indentation;
 use pretty_assertions::assert_eq;
 
 #[test]
@@ -45,7 +45,7 @@ fn cases() {
             let content_in = std::fs::read_to_string(&path_in).unwrap();
 
             let path_out = case_path.join("out.nix");
-            let content_got = alejandra::format::in_memory(
+            let content_got = nixfmt::format::in_memory(
                 path_in.to_str().unwrap().to_owned(),
                 content_in.clone(),
                 config,

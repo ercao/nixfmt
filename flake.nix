@@ -14,7 +14,7 @@
   outputs = inputs: let
     commit = inputs.self.shortRev or "dirty";
     date = inputs.self.lastModifiedDate or inputs.self.lastModified or "19700101";
-    version = "4.0.0+${builtins.substring 0 8 date}.${commit}";
+    version = "0.1.0+${builtins.substring 0 8 date}.${commit}";
 
     nixpkgsForHost = host:
       import inputs.nixpkgs {
@@ -31,23 +31,23 @@
     fenix."x86_64-linux" = inputs.fenix.packages."x86_64-linux";
 
     overlay = final: prev: {
-      alejandra = final.rustPlatform.buildRustPackage {
-        pname = "alejandra";
+      nixfmt = final.rustPlatform.buildRustPackage {
+        pname = "nixfmt";
         inherit version;
         src = ./.;
         cargoLock.lockFile = ./Cargo.lock;
 
         passthru.tests = {
-          version = final.testVersion {package = prev.alejandra;};
+          version = final.testVersion {package = final.nixfmt;};
         };
 
         meta = {
           description = "The Uncompromising Nix Code Formatter.";
-          homepage = "https://github.com/kamadorueda/alejandra";
+          homepage = "https://github.com/kamadorueda/nixfmt";
           license = final.lib.licenses.unlicense;
           maintainers = [final.lib.maintainers.kamadorueda];
           platforms = final.lib.systems.doubles.all;
-          mainProgram = "alejandra";
+          mainProgram = "nixfmt";
         };
       };
     };
@@ -55,7 +55,7 @@
     buildBinariesForHost = host: pkgs: let
       binaries = builtins.listToAttrs (
         builtins.map (pkg: {
-          name = "alejandra-${pkg.stdenv.targetPlatform.config}";
+          name = "nixfmt-${pkg.stdenv.targetPlatform.config}";
           value = pkg;
         })
         pkgs
@@ -63,11 +63,11 @@
     in
       binaries
       // {
-        "alejandra-binaries" = nixpkgs.${host}.linkFarm "alejandra-binaries" (
+        "nixfmt-binaries" = nixpkgs.${host}.linkFarm "nixfmt-binaries" (
           nixpkgs.${host}.lib.mapAttrsToList
           (name: binary: {
             inherit name;
-            path = "${binary}/bin/alejandra";
+            path = "${binary}/bin/nixfmt";
           })
           binaries
         );
@@ -80,15 +80,15 @@
     checks."x86_64-darwin" = packages."x86_64-darwin";
     checks."x86_64-linux" = packages."x86_64-linux";
 
-    defaultPackage."aarch64-darwin" = packages."aarch64-darwin"."alejandra-aarch64-apple-darwin";
-    defaultPackage."aarch64-linux" = packages."aarch64-linux"."alejandra-aarch64-unknown-linux-gnu";
-    defaultPackage."i686-linux" = packages."i686-linux"."alejandra-i686-unknown-linux-gnu";
-    defaultPackage."x86_64-darwin" = packages."x86_64-darwin"."alejandra-x86_64-apple-darwin";
-    defaultPackage."x86_64-linux" = packages."x86_64-linux"."alejandra-x86_64-unknown-linux-gnu";
+    defaultPackage."aarch64-darwin" = packages."aarch64-darwin"."nixfmt-aarch64-apple-darwin";
+    defaultPackage."aarch64-linux" = packages."aarch64-linux"."nixfmt-aarch64-unknown-linux-gnu";
+    defaultPackage."i686-linux" = packages."i686-linux"."nixfmt-i686-unknown-linux-gnu";
+    defaultPackage."x86_64-darwin" = packages."x86_64-darwin"."nixfmt-x86_64-apple-darwin";
+    defaultPackage."x86_64-linux" = packages."x86_64-linux"."nixfmt-x86_64-unknown-linux-gnu";
 
     devShell."x86_64-linux" = with nixpkgs."x86_64-linux";
       mkShell {
-        name = "alejandra";
+        name = "nixfmt";
         packages = [
           cargo-bloat
           cargo-license
@@ -111,35 +111,35 @@
 
     packages."aarch64-darwin" = with nixpkgs."aarch64-darwin";
       buildBinariesForHost "aarch64-darwin" [
-        alejandra
+        nixfmt
       ];
     packages."aarch64-linux" = with nixpkgs."aarch64-linux";
       buildBinariesForHost "aarch64-linux" [
-        alejandra
-        pkgsStatic.alejandra
+        nixfmt
+        pkgsStatic.nixfmt
       ];
     packages."i686-linux" = with nixpkgs."i686-linux";
       buildBinariesForHost "i686-linux" [
-        alejandra
+        nixfmt
       ];
     packages."x86_64-darwin" = with nixpkgs."x86_64-darwin";
       buildBinariesForHost "x86_64-darwin" [
-        alejandra
+        nixfmt
       ];
     packages."x86_64-linux" = with nixpkgs."x86_64-linux";
       (buildBinariesForHost "x86_64-linux" [
-        alejandra
-        pkgsStatic.alejandra
+        nixfmt
+        pkgsStatic.nixfmt
 
-        pkgsCross.aarch64-multiplatform.pkgsStatic.alejandra
+        pkgsCross.aarch64-multiplatform.pkgsStatic.nixfmt
         # Temporarily disabled to speed up release
-        # pkgsCross.armv7l-hf-multiplatform.pkgsStatic.alejandra
-        # pkgsCross.gnu32.pkgsStatic.alejandra
-        # pkgsCross.raspberryPi.pkgsStatic.alejandra
+        # pkgsCross.armv7l-hf-multiplatform.pkgsStatic.nixfmt
+        # pkgsCross.gnu32.pkgsStatic.nixfmt
+        # pkgsCross.raspberryPi.pkgsStatic.nixfmt
       ])
       // {
-        "alejandra-vscode-vsix" = mkYarnPackage {
-          name = "alejandra";
+        "nixfmt-vscode-vsix" = mkYarnPackage {
+          name = "nixfmt";
           src = ./integrations/vscode;
           packageJSON = ./integrations/vscode/package.json;
           yarnLock = ./integrations/vscode/yarn.lock;
@@ -159,7 +159,7 @@
             wasm-pack
           ];
           text = ''
-            cd src/alejandra_wasm
+            cd src/nixfmt_wasm
             wasm-pack build --target web
           '';
         };

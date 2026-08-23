@@ -1,23 +1,23 @@
-- id: alejandra
-  name: alejandra
-  description: Format Nix code with Alejandra.
-  entry: alejandra
+- id: nixfmt
+  name: nixfmt
+  description: Format Nix code with nixfmt.
+  entry: nixfmt
   language: rust
   files: \.nix$
   minimum_pre_commit_version: 2.21.0
 
-- id: alejandra-nix
-  name: alejandra (Nix)
-  description: Format Nix code with Alejandra.
+- id: nixfmt-nix
+  name: nixfmt (Nix)
+  description: Format Nix code with nixfmt.
   entry: .pre-commit-entry.sh
   language: script
   files: \.nix$
   minimum_pre_commit_version: 1.18.1
 
-- id: alejandra-system
-  name: alejandra (system)
-  description: Format Nix code with Alejandra.
-  entry: alejandra
+- id: nixfmt-system
+  name: nixfmt (system)
+  description: Format Nix code with nixfmt.
+  entry: nixfmt
   language: system
   files: \.nix$
   args: ["-q"]

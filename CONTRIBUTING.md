@@ -1,6 +1,6 @@
 # How to contribute
 
-Note that Alejandra is and has always been
+Note that nixfmt is and has always been
 [public domain software](https://stpeter.im/writings/essays/publicdomain.html).
 Unless explicitly stated by you,
 contributing implies licensing those contributions under the same [license](./UNLICENSE).
