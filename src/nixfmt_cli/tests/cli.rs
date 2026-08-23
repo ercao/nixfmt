@@ -3,12 +3,16 @@ use std::io::Write as _;
 use std::path::PathBuf;
 use std::process::Command;
 use std::process::Stdio;
+use std::sync::atomic::AtomicUsize;
+use std::sync::atomic::Ordering;
 
 use pretty_assertions::assert_eq;
 
+static NEXT_TEMP_DIR: AtomicUsize = AtomicUsize::new(0);
+
 #[derive(Debug)]
 struct TestCase {
-    args:  &'static [&'static str],
+    args: &'static [&'static str],
     stdin: Option<&'static str>,
 }
 
@@ -37,21 +41,21 @@ const CASES: &[TestCase] = &[
     TestCase { args: &[".", "--exclude", "."], stdin: None },
     TestCase { args: &[".", "--exclude", ".", "--quiet"], stdin: None },
     TestCase {
-        args:  &["--exclude", ".", "--quiet", "--quiet", "--", "."],
+        args: &["--exclude", ".", "--quiet", "--quiet", "--", "."],
         stdin: None,
     },
     //
     TestCase { args: &["--check", "tests/inputs/changed.nix"], stdin: None },
     TestCase {
-        args:  &["--check", "tests/inputs/changed.nix", "--quiet"],
+        args: &["--check", "tests/inputs/changed.nix", "--quiet"],
         stdin: None,
     },
     TestCase {
-        args:  &["-c", "tests/inputs/changed.nix", "-e", "tests/changed.nix"],
+        args: &["-c", "tests/inputs/changed.nix", "-e", "tests/changed.nix"],
         stdin: None,
     },
     TestCase {
-        args:  &[
+        args: &[
             "-c",
             "tests/inputs/changed.nix",
             "-q",
@@ -61,43 +65,43 @@ const CASES: &[TestCase] = &[
         stdin: None,
     },
     TestCase {
-        args:  &["--check", "tests/inputs/changed.nix", "-qq"],
+        args: &["--check", "tests/inputs/changed.nix", "-qq"],
         stdin: None,
     },
     TestCase { args: &["-c", "tests/inputs/unchanged.nix"], stdin: None },
     TestCase {
-        args:  &["--check", "tests/inputs/unchanged.nix", "-q"],
+        args: &["--check", "tests/inputs/unchanged.nix", "-q"],
         stdin: None,
     },
     TestCase {
-        args:  &["--check", "tests/inputs/unchanged.nix", "-qq"],
+        args: &["--check", "tests/inputs/unchanged.nix", "-qq"],
         stdin: None,
     },
     TestCase { args: &["--check", "tests/inputs/error.nix"], stdin: None },
     TestCase {
-        args:  &["--check", "tests/inputs/error.nix", "-q"],
+        args: &["--check", "tests/inputs/error.nix", "-q"],
         stdin: None,
     },
     TestCase {
-        args:  &["--check", "tests/inputs/error.nix", "-qq"],
+        args: &["--check", "tests/inputs/error.nix", "-qq"],
         stdin: None,
     },
     TestCase {
-        args:  &[
+        args: &[
             "--check",
             "tests/inputs/unchanged.nix",
-            "--experimental-config",
-            "../../nixfmt.toml",
+            "--config",
+            "../../.nixfmt.toml",
             "--threads",
             "1",
         ],
         stdin: None,
     },
     TestCase {
-        args:  &[
+        args: &[
             "--check",
             "tests/inputs/unchanged.nix",
-            "--experimental-config",
+            "--config",
             "tests/configs/empty_config.toml",
             "-t",
             "1",
@@ -105,11 +109,20 @@ const CASES: &[TestCase] = &[
         stdin: None,
     },
     TestCase {
-        args:  &[
+        args: &[
             "--check",
             "tests/inputs/unchanged.nix",
-            "--experimental-config",
+            "--config",
             "tests/configs/wrong_key.toml",
+        ],
+        stdin: None,
+    },
+    TestCase {
+        args: &[
+            "--check",
+            "tests/inputs/unchanged.nix",
+            "--config",
+            "tests/configs/zero_width.toml",
         ],
         stdin: None,
     },
@@ -178,11 +191,91 @@ fn cases() {
     assert_eq!(output_expected, output_got);
 }
 
+#[test]
+fn discovers_dot_nixfmt_toml_in_current_directory() {
+    let temp_dir = temp_dir();
+    std::fs::write(temp_dir.join(".nixfmt.toml"), "max_width = 5\n").unwrap();
+
+    let output = run_in(&temp_dir, "[ a b c ]");
+
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        "[\n  a\n  b\n  c\n]\n"
+    );
+    std::fs::remove_dir_all(temp_dir).unwrap();
+}
+
+#[test]
+fn does_not_discover_legacy_nixfmt_toml() {
+    let temp_dir = temp_dir();
+    std::fs::write(temp_dir.join("nixfmt.toml"), "max_width = 5\n").unwrap();
+
+    let output = run_in(&temp_dir, "[ a b c ]");
+
+    assert!(output.status.success());
+    assert_eq!(String::from_utf8(output.stdout).unwrap(), "[a b c]\n");
+    std::fs::remove_dir_all(temp_dir).unwrap();
+}
+
+#[test]
+fn rejects_zero_maximum_width() {
+    let temp_dir = temp_dir();
+    std::fs::write(temp_dir.join(".nixfmt.toml"), "max_width = 0\n").unwrap();
+
+    let output = run_in(&temp_dir, "[]");
+
+    assert_eq!(output.status.code(), Some(1));
+    assert!(String::from_utf8(output.stderr)
+        .unwrap()
+        .contains("Errors found in config"));
+    std::fs::remove_dir_all(temp_dir).unwrap();
+}
+
+#[test]
+fn rejects_experimental_config_option() {
+    let output = Command::new(env!("CARGO_BIN_EXE_nixfmt"))
+        .args(["--experimental-config", "config.toml"])
+        .output()
+        .unwrap();
+
+    assert_eq!(output.status.code(), Some(2));
+    assert!(String::from_utf8(output.stderr)
+        .unwrap()
+        .contains("Found argument '--experimental-config'"));
+}
+
+fn temp_dir() -> PathBuf {
+    let unique = NEXT_TEMP_DIR.fetch_add(1, Ordering::Relaxed);
+    let path = std::env::temp_dir()
+        .join(format!("nixfmt-cli-{}-{unique}", std::process::id()));
+    std::fs::create_dir(&path).unwrap();
+    path
+}
+
+fn run_in(current_dir: &std::path::Path, stdin: &str) -> std::process::Output {
+    let mut child = Command::new(env!("CARGO_BIN_EXE_nixfmt"))
+        .current_dir(current_dir)
+        .arg("--quiet")
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .unwrap();
+
+    child.stdin.take().unwrap().write_all(stdin.as_bytes()).unwrap();
+    child.wait_with_output().unwrap()
+}
+
 fn indent_and_clean(data: &str) -> String {
     data.lines().filter(|line| !line.starts_with(['👏', '🤟', '⭐'])).fold(
         String::new(),
         |mut output, line| {
-            let _ = writeln!(output, "  {}", line);
+            if line.is_empty() {
+                let _ = writeln!(output);
+            } else {
+                let _ = writeln!(output, "  {}", line);
+            }
             output
         },
     )

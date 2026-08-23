@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::io::Write;
+use std::num::NonZeroUsize;
 use std::path::PathBuf;
 
 use nixfmt::config::Config;
@@ -12,18 +13,28 @@ fn cases() {
 
     let configs = HashMap::from([
         ("default", Config::default()),
-        ("indentation-four-spaces", Config {
-            indentation: Indentation::FourSpaces,
-            ..Default::default()
-        }),
-        ("indentation-tabs", Config {
-            indentation: Indentation::Tabs,
-            ..Default::default()
-        }),
-        ("space-around-brackets", Config {
-            space_around_brackets: true,
-            ..Default::default()
-        }),
+        (
+            "indentation-four-spaces",
+            Config {
+                indentation: Indentation::FourSpaces,
+                ..Default::default()
+            },
+        ),
+        (
+            "indentation-tabs",
+            Config { indentation: Indentation::Tabs, ..Default::default() },
+        ),
+        (
+            "space-around-brackets",
+            Config { space_around_brackets: true, ..Default::default() },
+        ),
+        (
+            "max-width",
+            Config {
+                max_width: Some(NonZeroUsize::new(5).unwrap()),
+                ..Default::default()
+            },
+        ),
     ]);
 
     let cases_path = PathBuf::new().join("tests").join("cases");

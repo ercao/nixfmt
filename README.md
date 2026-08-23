@@ -82,7 +82,7 @@
   who have used [Nix](https://nixos.org) at scale
   for several years,
   producing a very **well-grounded** [**style guide**](./STYLE.md).
-  For everything else, some pieces of the style are [configurable](#experimental-configuration-options).
+  For everything else, some pieces of the style are [configurable](#configuration-options).
 
 - ✔️ **Transparent**
 
@@ -198,15 +198,15 @@ $ nixfmt --help
   }
   ```
 
-## (experimental) Configuration Options
+## Configuration Options
 
-You can configure nixfmt through a file named `nixfmt.toml`.
+You can configure nixfmt through a file named `.nixfmt.toml`.
 This file will be automatically detected if found in the same directory
 where nixfmt is being run from,
 or you can tell nixfmt to use a different location by using the
-`--experimental-config ./path/to/nixfmt.toml` flag in the CLI.
+`--config ./path/to/.nixfmt.toml` flag in the CLI.
 
-You can find a full configuration file and the supported options here: [nixfmt.toml](./nixfmt.toml).
+You can find a full configuration file and the supported options here: [.nixfmt.toml](./.nixfmt.toml).
 
 ## Cool libraries
 

@@ -16,14 +16,16 @@ pub(crate) enum Step {
 
 #[derive(Clone)]
 pub(crate) struct BuildCtx {
-    pub config:                       Config,
-    pub fitting_in_single_line_depth: usize,
-    pub force_wide:                   bool,
-    pub force_wide_success:           bool,
-    pub indentation:                  usize,
-    pub pos_old:                      crate::position::Position,
-    pub path:                         String,
-    pub vertical:                     bool,
+    pub config: Config,
+    pub force_wide: bool,
+    pub force_wide_success: bool,
+    pub force_wide_width_exceeded: bool,
+    pub indentation: usize,
+    pub pos_new: crate::position::Position,
+    pub pos_old: crate::position::Position,
+    pub path: String,
+    pub vertical: bool,
+    pub vertical_due_to_width: bool,
 }
 
 impl BuildCtx {
@@ -88,6 +90,7 @@ fn build_step(
 
             add_token(
                 builder,
+                build_ctx,
                 rnix::SyntaxKind::TOKEN_COMMENT,
                 &lines.join("\n"),
             );
@@ -107,12 +110,18 @@ fn build_step(
         crate::builder::Step::NewLine => {
             build_ctx.force_wide_success = false;
 
-            add_token(builder, rnix::SyntaxKind::TOKEN_WHITESPACE, "\n");
+            add_token(
+                builder,
+                build_ctx,
+                rnix::SyntaxKind::TOKEN_WHITESPACE,
+                "\n",
+            );
         }
         crate::builder::Step::Pad => {
             if build_ctx.indentation > 0 {
                 add_token(
                     builder,
+                    build_ctx,
                     rnix::SyntaxKind::TOKEN_WHITESPACE,
                     &match build_ctx.config.indentation {
                         Indentation::FourSpaces => "    ",
@@ -124,20 +133,37 @@ fn build_step(
             }
         }
         crate::builder::Step::Token(kind, text) => {
-            add_token(builder, *kind, text);
+            add_token(builder, build_ctx, *kind, text);
         }
         crate::builder::Step::Whitespace => {
-            add_token(builder, rnix::SyntaxKind::TOKEN_WHITESPACE, " ");
+            add_token(
+                builder,
+                build_ctx,
+                rnix::SyntaxKind::TOKEN_WHITESPACE,
+                " ",
+            );
         }
     }
 }
 
 fn add_token(
     builder: &mut rowan::GreenNodeBuilder,
+    build_ctx: &mut BuildCtx,
     kind: rnix::SyntaxKind,
     text: &str,
 ) {
     builder.token(rowan::SyntaxKind(kind as u16), text);
+    build_ctx.pos_new.update(text);
+
+    if build_ctx.force_wide
+        && build_ctx
+            .config
+            .max_width
+            .is_some_and(|max_width| build_ctx.pos_new.column > max_width.get())
+    {
+        build_ctx.force_wide_success = false;
+        build_ctx.force_wide_width_exceeded = true;
+    }
 }
 
 fn format(
@@ -270,7 +296,7 @@ fn format(
         }
         rnix::SyntaxElement::Token(token) => {
             let text = token.text();
-            add_token(builder, kind, text);
+            add_token(builder, build_ctx, kind, text);
             build_ctx.pos_old.update(text);
         }
     }
@@ -285,10 +311,20 @@ fn format_wider(
         rnix::SyntaxElement::Node(node) => {
             let mut build_ctx_clone = build_ctx.clone();
 
-            build_ctx_clone.vertical =
-                !fits_in_single_line(build_ctx, node.clone().into());
+            let (fits, width_exceeded) =
+                single_line_status(build_ctx, node.clone().into());
+            build_ctx_clone.force_wide_width_exceeded = false;
+            build_ctx_clone.vertical = !fits;
+            build_ctx_clone.vertical_due_to_width = width_exceeded;
 
             format(builder, &mut build_ctx_clone, element);
+            build_ctx.pos_new = build_ctx_clone.pos_new;
+            if build_ctx.force_wide {
+                build_ctx.force_wide_success =
+                    build_ctx_clone.force_wide_success;
+                build_ctx.force_wide_width_exceeded |=
+                    build_ctx_clone.force_wide_width_exceeded;
+            }
         }
         rnix::SyntaxElement::Token(_) => {
             format(builder, build_ctx, element);
@@ -296,28 +332,29 @@ fn format_wider(
     };
 }
 
+fn single_line_status(
+    build_ctx_old: &crate::builder::BuildCtx,
+    element: rnix::SyntaxElement,
+) -> (bool, bool) {
+    let mut build_ctx = crate::builder::BuildCtx {
+        force_wide: true,
+        force_wide_success: true,
+        force_wide_width_exceeded: false,
+        vertical: false,
+        vertical_due_to_width: false,
+        ..build_ctx_old.clone()
+    };
+
+    let fits = build(&mut build_ctx, element).is_some();
+
+    (fits, build_ctx.force_wide_width_exceeded)
+}
+
 pub(crate) fn fits_in_single_line(
     build_ctx_old: &crate::builder::BuildCtx,
     element: rnix::SyntaxElement,
 ) -> bool {
-    let mut build_ctx = crate::builder::BuildCtx {
-        force_wide: true,
-        force_wide_success: true,
-        vertical: false,
-        ..build_ctx_old.clone()
-    };
-
-    build_ctx.fitting_in_single_line_depth += 1;
-
-    if build_ctx.fitting_in_single_line_depth >= 2 {
-        return true;
-    }
-
-    let fits = build(&mut build_ctx, element).is_some();
-
-    build_ctx.fitting_in_single_line_depth -= 1;
-
-    fits
+    single_line_status(build_ctx_old, element).0
 }
 
 pub(crate) fn make_isolated_token(

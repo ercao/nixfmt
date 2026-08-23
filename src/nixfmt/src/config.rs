@@ -1,3 +1,5 @@
+use std::num::NonZeroUsize;
+
 use serde::Deserialize;
 
 /// Configuration used by the formatter
@@ -11,6 +13,10 @@ pub struct Config {
     /// Whether to put spaces around brackets
     #[serde(default)]
     pub space_around_brackets: bool,
+
+    /// Preferred maximum line width
+    #[serde(default)]
+    pub max_width: Option<NonZeroUsize>,
 }
 
 #[derive(Clone, Copy, Default, Deserialize)]

@@ -1,3 +1,0 @@
-# (experimental) Configuration options for nixfmt
-
-indentation = "TwoSpaces" # Or: FourSpaces, Tabs

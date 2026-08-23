@@ -1,13 +1,13 @@
 use std::fs::read_to_string;
 use std::io::Read;
 
-use nixfmt::config::Config;
 use clap::value_parser;
 use clap::ArgAction;
 use clap::Parser;
 use futures::future::RemoteHandle;
 use futures::stream::FuturesUnordered;
 use futures::task::SpawnExt;
+use nixfmt::config::Config;
 
 use crate::ads::random_ad;
 use crate::verbosity::Verbosity;
@@ -40,11 +40,11 @@ struct CLIArgs {
     #[clap(long, short)]
     check: bool,
 
-    /// [Experimental] Path to a config file. If not provided, it'll default to
-    /// `nixfmt.toml` in the current directory. If not found, it'll use the
+    /// Path to a config file. If not provided, it'll default to
+    /// `.nixfmt.toml` in the current directory. If not found, it'll use the
     /// default style.
     #[clap(long)]
-    experimental_config: Option<String>,
+    config: Option<String>,
 
     /// Number of formatting threads to spawn. Defaults to the number of
     /// physical CPUs.
@@ -63,7 +63,7 @@ struct CLIArgs {
 
 #[derive(Clone)]
 struct FormattedPath {
-    pub path:   String,
+    pub path: String,
     pub status: nixfmt::format::Status,
 }
 
@@ -158,7 +158,7 @@ pub fn main() -> ! {
         _ => Verbosity::NoErrors,
     };
 
-    let config = resolve_config(args.experimental_config.as_deref(), verbosity);
+    let config = resolve_config(args.config.as_deref(), verbosity);
 
     let formatted_paths = match &include[..] {
         &[] | &["-"] => {
@@ -233,9 +233,7 @@ pub fn main() -> ! {
 
     if verbosity.allows_info() {
         eprintln!();
-        eprintln!(
-            "Congratulations! Your code complies with the nixfmt style."
-        );
+        eprintln!("Congratulations! Your code complies with the nixfmt style.");
         eprintln!();
         eprint!("{}", random_ad());
     }
@@ -256,7 +254,7 @@ fn try_resolve_config(path: Option<&str>) -> Result<Config, String> {
 }
 
 fn resolve_config(path: Option<&str>, verbosity: Verbosity) -> Config {
-    let default_config_path = "nixfmt.toml";
+    let default_config_path = ".nixfmt.toml";
 
     // If no path was provided and the default config path exists, use it
     let path = path.or_else(|| {

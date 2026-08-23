@@ -1,0 +1,4 @@
+# Configuration options for nixfmt
+
+indentation = "TwoSpaces" # Or: FourSpaces, Tabs
+# max_width = 100 # Optional positive integer; omitted disables width wrapping

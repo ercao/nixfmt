@@ -21,10 +21,22 @@ pub(crate) fn rule(
         })
         .count();
 
-    let vertical = items_count > 1
-        || children.has_comments()
-        || children.has_newlines()
-        || build_ctx.vertical;
+    let vertical = build_ctx.vertical_due_to_width
+        || node
+            .children_with_tokens()
+            .skip_while(|element| {
+                element.kind() != rnix::SyntaxKind::TOKEN_L_BRACE
+            })
+            .skip(1)
+            .take_while(|element| {
+                element.kind() != rnix::SyntaxKind::TOKEN_R_BRACE
+            })
+            .any(|element| match element {
+                rnix::SyntaxElement::Node(_) => false,
+                rnix::SyntaxElement::Token(token) => {
+                    token.text().contains('\n')
+                }
+            });
 
     // rec
     let child = children.peek_next().unwrap();
@@ -105,7 +117,7 @@ pub(crate) fn rule(
                 if item_index > 1 {
                     steps.push(crate::builder::Step::Whitespace);
                 }
-                steps.push(crate::builder::Step::Format(child));
+                steps.push(crate::builder::Step::FormatWider(child));
             }
             children.move_next();
             inline_next_comment = true;

@@ -33,13 +33,15 @@ pub fn in_memory(
 
     let mut build_ctx = crate::builder::BuildCtx {
         config,
-        fitting_in_single_line_depth: 0,
         force_wide: false,
         force_wide_success: true,
+        force_wide_width_exceeded: false,
         indentation: 0,
         path,
+        pos_new: crate::position::Position::default(),
         pos_old: crate::position::Position::default(),
         vertical: true,
+        vertical_due_to_width: false,
     };
 
     let root = parsed.syntax();
