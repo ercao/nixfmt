@@ -2,3 +2,4 @@
 
 indentation = "TwoSpaces" # Or: FourSpaces, Tabs
 # max_width = 100 # Optional positive integer; omitted disables width wrapping
+# align_trailing_comments = true # Optional; defaults to false

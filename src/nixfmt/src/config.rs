@@ -17,6 +17,10 @@ pub struct Config {
     /// Preferred maximum line width
     #[serde(default)]
     pub max_width: Option<NonZeroUsize>,
+
+    /// Whether to align trailing line comments
+    #[serde(default)]
+    pub align_trailing_comments: bool,
 }
 
 #[derive(Clone, Copy, Default, Deserialize)]

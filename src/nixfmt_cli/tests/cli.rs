@@ -245,6 +245,48 @@ fn rejects_experimental_config_option() {
         .contains("Found argument '--experimental-config'"));
 }
 
+#[test]
+fn discovers_trailing_comment_alignment_configuration() {
+    let temp_dir = temp_dir();
+    std::fs::write(
+        temp_dir.join(".nixfmt.toml"),
+        "align_trailing_comments = true\n",
+    )
+    .unwrap();
+
+    let output = run_in(&temp_dir, "{\n  a = 1; # one\n  longer = 2; # two\n}");
+
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        "{\n  a = 1;      # one\n  longer = 2; # two\n}\n",
+    );
+    std::fs::remove_dir_all(temp_dir).unwrap();
+}
+
+#[test]
+fn loads_trailing_comment_alignment_from_explicit_config() {
+    let temp_dir = temp_dir();
+    std::fs::write(
+        temp_dir.join("alignment.toml"),
+        "align_trailing_comments = true\n",
+    )
+    .unwrap();
+
+    let output = run_with_args_in(
+        &temp_dir,
+        "{\n  a = 1; # one\n  longer = 2; # two\n}",
+        &["--config", "alignment.toml"],
+    );
+
+    assert!(output.status.success());
+    assert_eq!(
+        String::from_utf8(output.stdout).unwrap(),
+        "{\n  a = 1;      # one\n  longer = 2; # two\n}\n",
+    );
+    std::fs::remove_dir_all(temp_dir).unwrap();
+}
+
 fn temp_dir() -> PathBuf {
     let unique = NEXT_TEMP_DIR.fetch_add(1, Ordering::Relaxed);
     let path = std::env::temp_dir()
@@ -254,8 +296,17 @@ fn temp_dir() -> PathBuf {
 }
 
 fn run_in(current_dir: &std::path::Path, stdin: &str) -> std::process::Output {
+    run_with_args_in(current_dir, stdin, &[])
+}
+
+fn run_with_args_in(
+    current_dir: &std::path::Path,
+    stdin: &str,
+    args: &[&str],
+) -> std::process::Output {
     let mut child = Command::new(env!("CARGO_BIN_EXE_nixfmt"))
         .current_dir(current_dir)
+        .args(args)
         .arg("--quiet")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())

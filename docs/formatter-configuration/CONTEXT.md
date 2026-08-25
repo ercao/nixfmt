@@ -20,6 +20,18 @@ A syntax-aware location where Alejandra can insert a line break without changing
 
 Whether a syntax construct was written on one line or across multiple lines in the source input.
 
+### Trailing comment alignment
+
+Active formatting that places related trailing line comments in the same column. It does not preserve arbitrary input whitespace.
+
+_Avoid_: Comment whitespace preservation
+
+The public TOML option is `align_trailing_comments`.
+
+### Alignment group
+
+Consecutive lines at the same indentation level that each contain a trailing line comment. A blank line, a line without a trailing comment, a standalone comment, or an indentation change ends the group.
+
 ## Rules
 
 - Maximum line width is a soft limit, not a guarantee that every output line fits within the configured width.
@@ -48,3 +60,16 @@ Whether a syntax construct was written on one line or across multiple lines in t
 - An attribute set containing any input line break is normalized as a multiline attribute set.
 - An attribute set containing no input line break remains single-line unless an enabled formatting constraint requires expansion.
 - Input-shape preservation applies only to attribute sets; other syntax constructs retain their existing formatting rules.
+- Trailing comment alignment operates independently within each alignment group.
+- Trailing comment alignment applies only to `#` line comments; block comments do not participate.
+- `align_trailing_comments` defaults to `false`; omitted configuration preserves baseline comment spacing.
+- If alignment padding would newly push any otherwise fitting line over `max_width`, the entire group keeps baseline single-space comment separation. Pre-existing overflow from comment text does not disable alignment.
+- An alignment group must contain at least two lines; a single trailing comment keeps baseline spacing.
+- Alignment padding always uses spaces; tabs remain limited to leading indentation.
+- Alignment columns use the formatter's existing Unicode scalar column model rather than terminal display width.
+- Trailing comment alignment applies uniformly across Nix syntax structures; membership is determined by alignment-group rules rather than node kind.
+- `align_trailing_comments` is exposed only through stable TOML configuration; there is no separate CLI formatting flag.
+- Trailing comments are aligned in one syntax-aware pass after baseline formatting, not within individual syntax rules.
+- Without `max_width`, an alignment group uses its longest code prefix without an additional padding limit.
+- Alignment groups are identified from baseline formatted output, not from source-input layout.
+- The target comment column is one space after the group's longest code prefix; it is not rounded to a tab stop.

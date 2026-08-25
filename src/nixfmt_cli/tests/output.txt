@@ -512,7 +512,7 @@ stderr:
     |
   1 | asdf = "asdf"
     | ^^^^
-  unknown field `asdf`, expected one of `indentation`, `space_around_brackets`, `max_width`
+  unknown field `asdf`, expected one of `indentation`, `space_around_brackets`, `max_width`, `align_trailing_comments`
 
 
 exit code: Some(1)

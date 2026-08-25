@@ -46,8 +46,12 @@ pub fn in_memory(
 
     let root = parsed.syntax();
 
-    let after =
+    let mut after =
         crate::builder::build(&mut build_ctx, root.into()).unwrap().to_string();
+
+    if config.align_trailing_comments {
+        after = crate::comment_alignment::align(&after, config.max_width);
+    }
 
     if before == after {
         (Status::Changed(false), after)
