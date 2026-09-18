@@ -1,9 +1,4 @@
-{
-  stdenv,
-  lib,
-  fetchFrom,
-  ...
-}:
+{stdenv, lib, fetchFrom, ...}:
 stdenv.mkDerivation rec {
   pname = "test";
   version = "0.0";

@@ -6,33 +6,23 @@ pub(crate) fn rule(
 
     let pattern = crate::parsers::pattern::parse(build_ctx, node);
 
-    let has_comments_between_curly_b =
-        pattern.arguments.iter().any(|argument| {
-            argument.comment_after.is_some()
-                || !argument.comments_before.is_empty()
-        });
-
-    let has_comments = has_comments_between_curly_b
-        || !pattern.comments_after_initial_at.is_empty()
-        || !pattern.comments_before_end_at.is_empty();
-
-    let has_ellipsis = pattern.arguments.iter().any(|argument| {
-        if argument.item.is_some() {
-            argument.item.as_ref().unwrap().kind()
-                == rnix::SyntaxKind::TOKEN_ELLIPSIS
-        } else {
-            false
-        }
-    });
-
     let arguments_count = pattern.arguments.len();
-
-    let arguments_count_for_tall = if has_ellipsis { 2 } else { 1 };
-
-    let vertical = has_comments
-        || arguments_count > arguments_count_for_tall
-        || (arguments_count > 0 && has_comments_between_curly_b)
-        || build_ctx.vertical;
+    let vertical = build_ctx.vertical_due_to_width
+        || node
+            .children_with_tokens()
+            .skip_while(|element| {
+                element.kind() != rnix::SyntaxKind::TOKEN_L_BRACE
+            })
+            .skip(1)
+            .take_while(|element| {
+                element.kind() != rnix::SyntaxKind::TOKEN_R_BRACE
+            })
+            .any(|element| match element {
+                rnix::SyntaxElement::Node(_) => false,
+                rnix::SyntaxElement::Token(token) => {
+                    token.text().contains('\n')
+                }
+            });
 
     // x @
     if let Some(element) = &pattern.initial_at {

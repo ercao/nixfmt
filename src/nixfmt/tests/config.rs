@@ -37,6 +37,28 @@ fn multiline_attribute_set_preserves_its_input_shape() {
 }
 
 #[test]
+fn pattern_preserves_its_input_shape() {
+    assert_eq!(
+        format("{ foo, bar }: foo", Config::default()),
+        "{foo, bar}: foo\n"
+    );
+    assert_eq!(
+        format("{ foo,\nbar }: foo", Config::default()),
+        "{\n  foo,\n  bar,\n}:\nfoo\n"
+    );
+}
+
+#[test]
+fn space_around_brackets_keeps_single_empty_attribute_set_compact() {
+    let config = Config {
+        space_around_brackets: true,
+        ..Default::default()
+    };
+
+    assert_eq!(format("[ { } ]", config), "[{}]\n");
+}
+
+#[test]
 fn omitted_maximum_width_keeps_baseline_layout() {
     assert_eq!(format("[ a b c ]", Config::default()), "[a b c]\n");
     assert_eq!(

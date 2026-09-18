@@ -1,21 +1,4 @@
-{
-  stdenv,
-  lib,
-  fetchFromGitLab,
-  cairo,
-  desktop-file-utils,
-  gettext,
-  glib,
-  gtk4,
-  libadwaita,
-  meson,
-  ninja,
-  pango,
-  pkg-config,
-  python3,
-  rustPlatform,
-  wrapGAppsHook4,
-}:
+{stdenv, lib, fetchFromGitLab, cairo, desktop-file-utils, gettext, glib, gtk4, libadwaita, meson, ninja, pango, pkg-config, python3, rustPlatform, wrapGAppsHook4}:
 stdenv.mkDerivation rec {pname = "contrast"; version = "0.0.5"; src = fetchFromGitLab {domain = "gitlab.gnome.org"; group = "World"; owner = "design"; repo = "contrast"; rev = version; sha256 = "cypSbqLwSmauOoWOuppWpF3hvrxiqmkLspxAWzvlUC0=";}; cargoDeps = rustPlatform.fetchCargoTarball {inherit src; name = "${pname}-${version}"; hash = "sha256-W4FyqwJpimf0isQRCq9TegpTQPQfsumx40AFQCFG5VQ=";}; nativeBuildInputs = [
   desktop-file-utils
   gettext

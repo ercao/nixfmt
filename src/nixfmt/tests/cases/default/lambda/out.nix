@@ -41,11 +41,7 @@
   (
     aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
   )
-  ({
-    pkgs ? import ./.. {},
-    locationsXml,
-  }:
-    null)
+  ({pkgs ? import ./.. {}, locationsXml}: null)
   (a: b: c: {}: a: b: c:
     a)
 
@@ -57,7 +53,10 @@
   in
     pkgs)
 
-  (a: {b, ...}: c: {
+  (a: {
+    b,
+    ...
+  }: c: {
     # Stuff
   })
 

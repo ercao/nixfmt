@@ -13,6 +13,18 @@ pub(crate) fn rule(
         })
         .count()
         - 2;
+    let is_single_empty_attr_set = items_count == 1
+        && node.children().next().is_some_and(|child| {
+            child.kind() == rnix::SyntaxKind::NODE_ATTR_SET
+                && child.children_with_tokens().all(|element| {
+                    matches!(
+                        element.kind(),
+                        rnix::SyntaxKind::TOKEN_L_BRACE
+                            | rnix::SyntaxKind::TOKEN_R_BRACE
+                            | rnix::SyntaxKind::TOKEN_WHITESPACE
+                    )
+                })
+        });
 
     let vertical = children.has_comments()
         || children.has_newlines()
@@ -23,7 +35,10 @@ pub(crate) fn rule(
     steps.push(crate::builder::Step::Format(child));
     if vertical {
         steps.push(crate::builder::Step::Indent);
-    } else if items_count > 0 && build_ctx.config.space_around_brackets {
+    } else if items_count > 0
+        && build_ctx.config.space_around_brackets
+        && !is_single_empty_attr_set
+    {
         steps.push(crate::builder::Step::Whitespace);
     }
 
@@ -92,7 +107,10 @@ pub(crate) fn rule(
         steps.push(crate::builder::Step::Dedent);
         steps.push(crate::builder::Step::NewLine);
         steps.push(crate::builder::Step::Pad);
-    } else if items_count > 0 && build_ctx.config.space_around_brackets {
+    } else if items_count > 0
+        && build_ctx.config.space_around_brackets
+        && !is_single_empty_attr_set
+    {
         steps.push(crate::builder::Step::Whitespace);
     }
     steps.push(crate::builder::Step::Format(child));

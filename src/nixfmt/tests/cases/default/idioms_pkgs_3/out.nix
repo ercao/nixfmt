@@ -1,9 +1,4 @@
-{
-  config,
-  lib,
-  pkgs,
-  ...
-}:
+{config, lib, pkgs, ...}:
 with lib; let
   inherit (config.boot) kernelPatches;
   inherit (config.boot.kernel) features randstructSeed;
