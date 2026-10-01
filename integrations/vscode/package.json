@@ -54,10 +54,6 @@
   "engines": {
     "vscode": "^1.64.0"
   },
-  "funding": {
-    "type": "patreon",
-    "url": "https://www.patreon.com/kamadorueda"
-  },
   "license": "Unlicense",
   "main": "./extension.js",
   "name": "nixfmt",

@@ -56,11 +56,6 @@ Types of changes
 - Different levels of --quiet by repeating the `-q` flag,
   which makes Vim users have a better formatting experience by using `:%!alejandra -qq` to format the current buffer,
   specially when the file has syntax errors.
-- The possibility for companies to promote their business
-  by placing an add at the end of Alejandra's terminal output, and thank you messages for the sponsors of the project.
-
-  You can obtain this benefits in @kamadorueda's [sponsor page](https://github.com/sponsors/kamadorueda).
-
 - Thank you messages for the different people
   who have helped improving Alejandra.
 
