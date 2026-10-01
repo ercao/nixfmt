@@ -214,8 +214,26 @@ fn does_not_discover_legacy_nixfmt_toml() {
     let output = run_in(&temp_dir, "[ a b c ]");
 
     assert!(output.status.success());
-    assert_eq!(String::from_utf8(output.stdout).unwrap(), "[a b c]\n");
+    assert_eq!(String::from_utf8(output.stdout).unwrap(), "[ a b c ]\n");
     std::fs::remove_dir_all(temp_dir).unwrap();
+}
+
+#[test]
+fn bracket_spacing_defaults_in_config_and_can_be_disabled() {
+    for (config, expected) in [
+        ("", "[ a b ]\n"),
+        ("indentation = \"TwoSpaces\"\n", "[ a b ]\n"),
+        ("space_around_brackets = false\n", "[a b]\n"),
+    ] {
+        let temp_dir = temp_dir();
+        std::fs::write(temp_dir.join(".nixfmt.toml"), config).unwrap();
+
+        let output = run_in(&temp_dir, "[a b]");
+
+        assert!(output.status.success());
+        assert_eq!(String::from_utf8(output.stdout).unwrap(), expected);
+        std::fs::remove_dir_all(temp_dir).unwrap();
+    }
 }
 
 #[test]

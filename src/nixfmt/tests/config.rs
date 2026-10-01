@@ -11,7 +11,7 @@ fn format(input: &str, config: Config) -> String {
 fn compact_attribute_set_preserves_its_input_shape() {
     assert_eq!(
         format("{ foo = 1; bar = 2; }", Config::default()),
-        "{foo = 1; bar = 2;}\n"
+        "{ foo = 1; bar = 2; }\n"
     );
 }
 
@@ -19,13 +19,16 @@ fn compact_attribute_set_preserves_its_input_shape() {
 fn compact_attribute_set_does_not_expand_for_nested_structure() {
     let once = format("{ a = if x then y else z; }", Config::default());
 
-    assert_eq!(once, "{a =\n  if x\n  then y\n  else z;}\n");
+    assert_eq!(once, "{ a =\n  if x\n  then y\n  else z; }\n");
     assert_eq!(format(&once, Config::default()), once);
 }
 
 #[test]
 fn newline_before_attribute_set_does_not_expand_its_contents() {
-    assert_eq!(format("rec\n{ a = 1; }", Config::default()), "rec\n{a = 1;}\n");
+    assert_eq!(
+        format("rec\n{ a = 1; }", Config::default()),
+        "rec\n{ a = 1; }\n"
+    );
 }
 
 #[test]
@@ -40,7 +43,7 @@ fn multiline_attribute_set_preserves_its_input_shape() {
 fn pattern_preserves_its_input_shape() {
     assert_eq!(
         format("{ foo, bar }: foo", Config::default()),
-        "{foo, bar}: foo\n"
+        "{ foo, bar }: foo\n"
     );
     assert_eq!(
         format("{ foo,\nbar }: foo", Config::default()),
@@ -50,20 +53,31 @@ fn pattern_preserves_its_input_shape() {
 
 #[test]
 fn space_around_brackets_keeps_single_empty_attribute_set_compact() {
-    let config = Config {
-        space_around_brackets: true,
-        ..Default::default()
-    };
+    assert_eq!(format("[ { } ]", Config::default()), "[{}]\n");
+}
 
-    assert_eq!(format("[ { } ]", config), "[{}]\n");
+#[test]
+fn bracket_spacing_is_enabled_by_default_and_can_be_disabled() {
+    let default = Config::default();
+    let compact = Config { space_around_brackets: false, ..default };
+
+    assert!(default.space_around_brackets);
+    for (input, spaced, unspaced) in [
+        ("[a b]", "[ a b ]\n", "[a b]\n"),
+        ("{a = 1;}", "{ a = 1; }\n", "{a = 1;}\n"),
+        ("{a}: a", "{ a }: a\n", "{a}: a\n"),
+    ] {
+        assert_eq!(format(input, default), spaced);
+        assert_eq!(format(input, compact), unspaced);
+    }
 }
 
 #[test]
 fn omitted_maximum_width_keeps_baseline_layout() {
-    assert_eq!(format("[ a b c ]", Config::default()), "[a b c]\n");
+    assert_eq!(format("[ a b c ]", Config::default()), "[ a b c ]\n");
     assert_eq!(
         format("{ foo = [ a b ]; }", Config::default()),
-        "{foo = [a b];}\n"
+        "{ foo = [ a b ]; }\n"
     );
 }
 
@@ -86,7 +100,7 @@ fn maximum_width_includes_indentation() {
 
     assert_eq!(
         format("{ foo = [ a b ]; }", config),
-        "{\n  foo = [\n    a\n    b\n  ];\n}\n"
+        "{ foo = [\n  a\n  b\n]; }\n"
     );
 }
 

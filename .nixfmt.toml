@@ -1,5 +1,6 @@
 # Configuration options for nixfmt
 
 indentation = "TwoSpaces" # Or: FourSpaces, Tabs
+# space_around_brackets = false # Optional; defaults to true
 # max_width = 100 # Optional positive integer; omitted disables width wrapping
 # align_trailing_comments = true # Optional; defaults to false

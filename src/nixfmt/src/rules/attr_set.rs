@@ -84,6 +84,12 @@ pub(crate) fn rule(
                 if inline_next_comment && text.starts_with('#') {
                     steps.push(crate::builder::Step::Whitespace);
                 } else {
+                    if matches!(
+                        steps.last(),
+                        Some(crate::builder::Step::Whitespace)
+                    ) {
+                        steps.pop();
+                    }
                     steps.push(crate::builder::Step::NewLine);
                     steps.push(crate::builder::Step::Pad);
                 }
