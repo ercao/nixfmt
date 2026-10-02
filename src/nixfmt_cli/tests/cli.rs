@@ -337,15 +337,12 @@ fn run_with_args_in(
 }
 
 fn indent_and_clean(data: &str) -> String {
-    data.lines().filter(|line| !line.starts_with(['👏', '🤟', '⭐'])).fold(
-        String::new(),
-        |mut output, line| {
-            if line.is_empty() {
-                let _ = writeln!(output);
-            } else {
-                let _ = writeln!(output, "  {}", line);
-            }
-            output
-        },
-    )
+    data.lines().fold(String::new(), |mut output, line| {
+        if line.is_empty() {
+            let _ = writeln!(output);
+        } else {
+            let _ = writeln!(output, "  {}", line);
+        }
+        output
+    })
 }

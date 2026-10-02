@@ -16,10 +16,6 @@ futures = { version = "*", default-features = false, features = [
   "thread-pool",
 ] }
 num_cpus = { version = "*", default-features = false, features = [] }
-rand = { version = "*", default-features = false, features = [
-  "alloc",
-  "getrandom",
-] }
 toml = { version = "*", default-features = false, features = ["parse", "serde"] }
 walkdir = { version = "*", default-features = false, features = [] }
 

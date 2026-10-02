@@ -32,38 +32,16 @@ stdout:
     2, if --check was used and any file requires formatting.
     0, otherwise.
 
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--version"]
 stdout:
   nixfmt 0.1.0
 
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: []
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Formatting stdin.
   Use --help to see all command line options.
   use --quiet to suppress this and other messages.
@@ -79,18 +57,11 @@ stdout:
   []
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Formatting stdin.
   Use --help to see all command line options.
   use --quiet to suppress this and other messages.
 
   Success! 1 file was formatted.
-
 
 exit code: Some(0)
 ===
@@ -99,28 +70,12 @@ stdin: "[]"
 stdout:
   []
 
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--quiet", "--quiet"]
 stdin: "[]"
 stdout:
   []
-
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
 
 exit code: Some(0)
 ===
@@ -130,18 +85,9 @@ stdout:
   []
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Formatting stdin.
   Use --help to see all command line options.
   use --quiet to suppress this and other messages.
-
-  Congratulations! Your code complies with the nixfmt style.
-
 
 exit code: Some(0)
 ===
@@ -150,28 +96,12 @@ stdin: "[]\n"
 stdout:
   []
 
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--check", "--quiet", "--quiet"]
 stdin: "[]\n"
 stdout:
   []
-
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
 
 exit code: Some(0)
 ===
@@ -181,12 +111,6 @@ stdout:
   []
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Formatting stdin.
   Use --help to see all command line options.
   use --quiet to suppress this and other messages.
@@ -200,28 +124,12 @@ stdin: "[\t]"
 stdout:
   []
 
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(2)
 ===
 args: ["--check", "--quiet", "--quiet"]
 stdin: "[\t]"
 stdout:
   []
-
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
 
 exit code: Some(2)
 ===
@@ -231,12 +139,6 @@ stdout:
   [
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Formatting stdin.
   Use --help to see all command line options.
   use --quiet to suppress this and other messages.
@@ -252,12 +154,6 @@ stdout:
   [
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
 
   Failed! 1 error found at:
   - <anonymous file on stdin>: unexpected end of file
@@ -269,52 +165,19 @@ stdin: "["
 stdout:
   [
 
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(1)
 ===
 args: [".", "--exclude", "."]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Checking style in 0 files using 1 thread.
-
-
-  Congratulations! Your code complies with the nixfmt style.
 
 
 exit code: Some(0)
 ===
 args: [".", "--exclude", ".", "--quiet"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--exclude", ".", "--quiet", "--quiet", "--", "."]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--check", "tests/inputs/changed.nix"]
@@ -322,12 +185,6 @@ stdout:
   Requires formatting: tests/inputs/changed.nix
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Checking style in 1 file using 1 thread.
 
 
@@ -336,14 +193,6 @@ stderr:
 exit code: Some(2)
 ===
 args: ["--check", "tests/inputs/changed.nix", "--quiet"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(2)
 ===
 args: ["-c", "tests/inputs/changed.nix", "-e", "tests/changed.nix"]
@@ -351,12 +200,6 @@ stdout:
   Requires formatting: tests/inputs/changed.nix
 
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Checking style in 1 file using 1 thread.
 
 
@@ -365,73 +208,26 @@ stderr:
 exit code: Some(2)
 ===
 args: ["-c", "tests/inputs/changed.nix", "-q", "-e", "tests/changed.nix"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(2)
 ===
 args: ["--check", "tests/inputs/changed.nix", "-qq"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(2)
 ===
 args: ["-c", "tests/inputs/unchanged.nix"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Checking style in 1 file using 1 thread.
-
-
-  Congratulations! Your code complies with the nixfmt style.
 
 
 exit code: Some(0)
 ===
 args: ["--check", "tests/inputs/unchanged.nix", "-q"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--check", "tests/inputs/unchanged.nix", "-qq"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(0)
 ===
 args: ["--check", "tests/inputs/error.nix"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Checking style in 1 file using 1 thread.
 
 
@@ -442,12 +238,6 @@ exit code: Some(1)
 ===
 args: ["--check", "tests/inputs/error.nix", "-q"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
 
   Failed! 1 error found at:
   - tests/inputs/error.nix: unexpected end of file
@@ -455,58 +245,26 @@ stderr:
 exit code: Some(1)
 ===
 args: ["--check", "tests/inputs/error.nix", "-qq"]
-stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
-
 exit code: Some(1)
 ===
 args: ["--check", "tests/inputs/unchanged.nix", "--config", "../../.nixfmt.toml", "--threads", "1"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Using config from: ../../.nixfmt.toml
   Checking style in 1 file using 1 thread.
-
-
-  Congratulations! Your code complies with the nixfmt style.
 
 
 exit code: Some(0)
 ===
 args: ["--check", "tests/inputs/unchanged.nix", "--config", "tests/configs/empty_config.toml", "-t", "1"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Using config from: tests/configs/empty_config.toml
   Checking style in 1 file using 1 thread.
-
-
-  Congratulations! Your code complies with the nixfmt style.
 
 
 exit code: Some(0)
 ===
 args: ["--check", "tests/inputs/unchanged.nix", "--config", "tests/configs/wrong_key.toml"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Using config from: tests/configs/wrong_key.toml
   Errors found in config: TOML parse error at line 1, column 1
     |
@@ -519,12 +277,6 @@ exit code: Some(1)
 ===
 args: ["--check", "tests/inputs/unchanged.nix", "--config", "tests/configs/zero_width.toml"]
 stderr:
-  warning: failed running `"xcrun" "--sdk" "macosx" "--show-sdk-path"` to find MacOSX.sdk
-    |
-    = note: error: unable to find sdk: 'macosx'
-    = note: the SDK is needed by the linker to know where to find symbols in system libraries and for embedding the SDK version in the final object file
-    = note: found active developer directory at "/Library/Developer/CommandLineTools"
-
   Using config from: tests/configs/zero_width.toml
   Errors found in config: TOML parse error at line 1, column 13
     |

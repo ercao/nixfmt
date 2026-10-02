@@ -9,7 +9,6 @@ use futures::stream::FuturesUnordered;
 use futures::task::SpawnExt;
 use nixfmt::config::Config;
 
-use crate::ads::random_ad;
 use crate::verbosity::Verbosity;
 
 /// The Uncompromising Nix Code Formatter.
@@ -221,21 +220,9 @@ pub fn main() -> ! {
                     (true, false) => "requires formatting",
                 }
             );
-
-            if in_place {
-                eprintln!();
-                eprint!("{}", random_ad());
-            }
         }
 
         std::process::exit(if in_place { 0 } else { 2 });
-    }
-
-    if verbosity.allows_info() {
-        eprintln!();
-        eprintln!("Congratulations! Your code complies with the nixfmt style.");
-        eprintln!();
-        eprint!("{}", random_ad());
     }
 
     std::process::exit(0);
