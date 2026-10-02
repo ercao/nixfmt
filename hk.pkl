@@ -1,0 +1,29 @@
+amends "package://github.com/jdx/hk/releases/download/v2.0.1/hk@2.0.1#/Config.pkl"
+
+local linters = new Mapping<String, Step> {
+  ["nixfmt"] {
+    glob = "*.nix"
+    // 测试样例包含未格式化、无效语法和非默认风格，必须保持原样。
+    exclude = "crates/**/tests/**"
+    check = "cargo run --quiet --package nixfmt_cli -- --quiet --check {{files}}"
+    fix = "cargo run --quiet --package nixfmt_cli -- --quiet {{files}}"
+  }
+}
+
+hooks {
+  ["pre-commit"] {
+    fix = true
+    stash = "git"
+    stage = false
+    fail_on_fix = true
+    steps = linters
+  }
+  ["check"] {
+    steps = linters
+  }
+  ["fix"] {
+    fix = true
+    stage = false
+    steps = linters
+  }
+}
