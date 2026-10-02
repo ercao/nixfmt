@@ -2,7 +2,7 @@ pub(crate) fn rule(
     build_ctx: &crate::builder::BuildCtx,
     node: &rnix::SyntaxNode,
 ) -> Vec<crate::builder::Step> {
-    let mut steps = Vec::new();
+    let mut steps = build_ctx.take_steps();
 
     let mut children = crate::children::Children::new(build_ctx, node);
 
@@ -50,7 +50,7 @@ pub(crate) fn rule(
         children.drain_trivia(|element| {
             match element {
                 crate::children::Trivia::Comment(text) => {
-                    if inline_next_comment && text.starts_with('#') {
+                    if inline_next_comment && text.text().starts_with('#') {
                         steps.push(crate::builder::Step::Whitespace);
                     } else {
                         steps.push(crate::builder::Step::NewLine);
@@ -61,9 +61,7 @@ pub(crate) fn rule(
                     item_index += 1;
                     inline_next_comment = false;
                 }
-                crate::children::Trivia::Whitespace(text) => {
-                    let newlines = crate::utils::count_newlines(&text);
-
+                crate::children::Trivia::Whitespace(newlines) => {
                     if newlines > 1
                         && item_index > 0
                         && item_index < items_count

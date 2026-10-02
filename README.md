@@ -307,6 +307,11 @@ and [Yorick van Pelt](https://github.com/yorickvP).
     |    2     |   25    |
     |    4     |   14    |
 
+    Run `cargo bench -p nixfmt --bench formatting` for repeatable in-memory
+    benchmarks of real-world input, nested layouts, and large comment groups.
+    These measurements exclude CLI startup and filesystem I/O; compare runs
+    on the same machine and with the same toolchain.
+
 [^semantic-changes]: The methodology to claim this is:
 
     1.  Checkout [Nixpkgs](https://github.com/nixos/nixpkgs) and run:

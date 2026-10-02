@@ -1,7 +1,7 @@
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub(crate) struct Position {
     pub column: usize,
-    pub line:   usize,
+    pub line: usize,
 }
 
 impl Default for Position {

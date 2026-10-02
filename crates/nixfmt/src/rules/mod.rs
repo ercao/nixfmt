@@ -17,8 +17,10 @@ pub(crate) mod scoped;
 pub(crate) mod string;
 
 pub(crate) fn default(
-    _: &crate::builder::BuildCtx,
+    build_ctx: &crate::builder::BuildCtx,
     node: &rnix::SyntaxNode,
 ) -> Vec<crate::builder::Step> {
-    node.children_with_tokens().map(crate::builder::Step::Format).collect()
+    let mut steps = build_ctx.take_steps();
+    steps.extend(node.children_with_tokens().map(crate::builder::Step::Format));
+    steps
 }

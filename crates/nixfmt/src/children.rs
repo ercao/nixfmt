@@ -1,11 +1,14 @@
 pub(crate) struct Children {
-    children:      Vec<rnix::SyntaxElement>,
+    children: Vec<rnix::SyntaxElement>,
     current_index: usize,
+    has_comments: bool,
+    has_newlines: bool,
 }
 
 pub(crate) enum Trivia {
-    Comment(String),
-    Whitespace(String),
+    Comment(rnix::SyntaxToken),
+    // Spaces are discarded by Children; retain only the number of line breaks.
+    Whitespace(usize),
 }
 
 impl Children {
@@ -15,109 +18,115 @@ impl Children {
     ) -> Children {
         let mut children: Vec<rnix::SyntaxElement> = Vec::new();
 
-        // Updating the position is costly,
-        // so let's just do it when really needed
-        let mut pos = {
-            let has_comments = node.children_with_tokens().any(|child| {
-                matches!(child.kind(), rnix::SyntaxKind::TOKEN_COMMENT)
-            });
-
-            if has_comments {
-                Some(build_ctx.pos_old.clone())
-            } else {
-                None
-            }
-        };
+        // Only block comments need their original column. Advance this second
+        // iterator lazily, without flattening preceding subtrees into strings.
+        let mut position_children = node.children_with_tokens();
+        let mut pos = build_ctx.pos_old.clone();
+        let mut has_comments = false;
+        let mut has_newlines = false;
 
         for child in node.children_with_tokens() {
             match child {
-                rnix::SyntaxElement::Node(node) => {
-                    match node.kind() {
-                        rnix::SyntaxKind::NODE_PAREN => {
-                            let mut simplified = node.clone();
+                rnix::SyntaxElement::Node(node) => match node.kind() {
+                    rnix::SyntaxKind::NODE_PAREN => {
+                        let mut simplified = node.clone();
 
-                            while matches!(
-                                simplified.kind(),
-                                rnix::SyntaxKind::NODE_PAREN
-                            ) {
-                                let mut children =
-                                    crate::annotated_children::annotated(
-                                        build_ctx,
-                                        &simplified,
-                                    );
+                        while matches!(
+                            simplified.kind(),
+                            rnix::SyntaxKind::NODE_PAREN
+                        ) {
+                            let mut children =
+                                crate::annotated_children::annotated(
+                                    build_ctx,
+                                    &simplified,
+                                );
 
-                                let opener = children.next().unwrap();
-                                let expression = children.next().unwrap();
-                                let closer = children.next().unwrap();
+                            let opener = children.next().unwrap();
+                            let expression = children.next().unwrap();
+                            let closer = children.next().unwrap();
 
-                                if !opener.has_inline_comment
-                                    && !opener.has_comments
-                                    && !expression.has_inline_comment
-                                    && !expression.has_comments
-                                    && !closer.has_inline_comment
-                                    && !closer.has_comments
-                                    && matches!(
-                                        expression.element.kind(),
-                                        rnix::SyntaxKind::NODE_ATTR_SET
-                                            | rnix::SyntaxKind::NODE_IDENT
-                                            | rnix::SyntaxKind::NODE_LIST
-                                            | rnix::SyntaxKind::NODE_LITERAL
-                                            | rnix::SyntaxKind::NODE_PAREN
-                                            | rnix::SyntaxKind::NODE_INTERPOL
-                                            | rnix::SyntaxKind::NODE_STRING
-                                    )
-                                {
-                                    simplified =
-                                        expression.element.into_node().unwrap();
-                                } else {
+                            if !opener.has_inline_comment
+                                && !opener.has_comments
+                                && !expression.has_inline_comment
+                                && !expression.has_comments
+                                && !closer.has_inline_comment
+                                && !closer.has_comments
+                                && matches!(
+                                    expression.element.kind(),
+                                    rnix::SyntaxKind::NODE_ATTR_SET
+                                        | rnix::SyntaxKind::NODE_IDENT
+                                        | rnix::SyntaxKind::NODE_LIST
+                                        | rnix::SyntaxKind::NODE_LITERAL
+                                        | rnix::SyntaxKind::NODE_PAREN
+                                        | rnix::SyntaxKind::NODE_INTERPOL
+                                        | rnix::SyntaxKind::NODE_STRING
+                                )
+                            {
+                                simplified =
+                                    expression.element.into_node().unwrap();
+                            } else {
+                                break;
+                            }
+                        }
+
+                        children.push(simplified.into());
+                    }
+                    _ => {
+                        children.push(node.clone().into());
+                    }
+                },
+
+                rnix::SyntaxElement::Token(token) => match token.kind() {
+                    rnix::SyntaxKind::TOKEN_COMMENT => {
+                        has_comments = true;
+                        if token.text().starts_with('#') {
+                            children.push(token.clone().into());
+                        } else {
+                            let current = token.clone().into();
+                            for preceding in position_children.by_ref() {
+                                if preceding == current {
                                     break;
                                 }
+                                match preceding {
+                                    rnix::SyntaxElement::Node(node) => {
+                                        node.text().for_each_chunk(|text| {
+                                            pos.update(text)
+                                        });
+                                    }
+                                    rnix::SyntaxElement::Token(token) => {
+                                        pos.update(token.text())
+                                    }
+                                }
                             }
-
-                            children.push(simplified.into());
-                        }
-                        _ => {
-                            children.push(node.clone().into());
-                        }
-                    }
-
-                    if let Some(ref mut pos) = pos {
-                        pos.update(&node.text().to_string());
-                    }
-                }
-
-                rnix::SyntaxElement::Token(token) => {
-                    match token.kind() {
-                        rnix::SyntaxKind::TOKEN_COMMENT => {
-                            children.push(
-                                crate::builder::make_isolated_token(
-                                    rnix::SyntaxKind::TOKEN_COMMENT,
-                                    &dedent_comment(
-                                        pos.as_ref().unwrap(),
-                                        token.text(),
-                                    ),
-                                )
-                                .into(),
-                            );
-                        }
-                        rnix::SyntaxKind::TOKEN_WHITESPACE => {
-                            if crate::utils::count_newlines(token.text()) > 0 {
+                            let text = dedent_comment(&pos, token.text());
+                            pos.update(token.text());
+                            if text == token.text() {
                                 children.push(token.clone().into());
+                            } else {
+                                children.push(
+                                    crate::builder::make_isolated_token(
+                                        rnix::SyntaxKind::TOKEN_COMMENT,
+                                        &text,
+                                    )
+                                    .into(),
+                                );
                             }
                         }
-                        _ => {
+                    }
+                    rnix::SyntaxKind::TOKEN_WHITESPACE => {
+                        if crate::utils::has_newlines(token.text()) {
+                            has_newlines = true;
                             children.push(token.clone().into());
                         }
                     }
-
-                    if let Some(ref mut pos) = pos {
-                        pos.update(token.text());
+                    _ => {
+                        children.push(token.clone().into());
                     }
-                }
+                },
             }
         }
 
-        Children { children, current_index: 0 }
+        Children { children, current_index: 0, has_comments, has_newlines }
     }
 
     pub fn get(&mut self, index: usize) -> Option<rnix::SyntaxElement> {
@@ -157,33 +166,24 @@ impl Children {
     }
 
     pub fn has_comments(&self) -> bool {
-        self.children
-            .iter()
-            .any(|child| child.kind() == rnix::SyntaxKind::TOKEN_COMMENT)
+        self.has_comments
     }
 
     pub fn has_newlines(&self) -> bool {
-        self.children.iter().any(|child| {
-            child.kind() == rnix::SyntaxKind::TOKEN_WHITESPACE
-                && crate::utils::has_newlines(
-                    child.as_token().as_ref().unwrap().text(),
-                )
-        })
+        self.has_newlines
     }
 
     pub fn drain_trivia<F: FnMut(Trivia)>(&mut self, mut callback: F) {
         while let Some(child) = self.peek_next() {
             match child.kind() {
                 rnix::SyntaxKind::TOKEN_COMMENT => {
-                    callback(Trivia::Comment(
-                        child.into_token().unwrap().text().to_string(),
-                    ));
+                    callback(Trivia::Comment(child.into_token().unwrap()));
                     self.move_next();
                 }
                 rnix::SyntaxKind::TOKEN_WHITESPACE => {
-                    callback(Trivia::Whitespace(
-                        child.as_token().as_ref().unwrap().text().to_string(),
-                    ));
+                    callback(Trivia::Whitespace(crate::utils::count_newlines(
+                        child.as_token().unwrap().text(),
+                    )));
                     self.move_next();
                 }
                 _ => {

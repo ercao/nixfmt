@@ -2,7 +2,7 @@ pub(crate) fn rule(
     build_ctx: &crate::builder::BuildCtx,
     node: &rnix::SyntaxNode,
 ) -> Vec<crate::builder::Step> {
-    let mut steps = Vec::new();
+    let mut steps = build_ctx.take_steps();
 
     let mut children = crate::children::Children::new(build_ctx, node);
 
@@ -46,8 +46,8 @@ pub(crate) fn rule(
         crate::children::Trivia::Comment(text) => {
             comments_before.push(crate::builder::Step::Comment(text))
         }
-        crate::children::Trivia::Whitespace(text) => {
-            if crate::utils::count_newlines(&text) > 0 {
+        crate::children::Trivia::Whitespace(count) => {
+            if count > 0 {
                 newlines = true;
             }
         }

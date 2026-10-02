@@ -154,3 +154,33 @@ fn trailing_comment_alignment_is_idempotent() {
 
     assert_eq!(format(&once, aligned_config()), once);
 }
+
+#[test]
+fn discarded_layout_trials_do_not_leave_comment_offsets() {
+    let input = "if # condition\n true then {\n a = \"界\"; # one\n longer = 2; # two\n } else null";
+    let output = format(input, aligned_config());
+
+    assert_eq!(
+        output,
+        "if # condition\n  true\nthen {\n  a = \"界\";    # one\n  longer = 2; # two\n}\nelse null\n",
+    );
+    assert_eq!(format(&output, aligned_config()), output);
+}
+
+#[test]
+fn large_comment_groups_preserve_every_line() {
+    let mut input = String::from("{\n");
+    let mut expected = String::from("{\n");
+    for i in 0..1000 {
+        let key = format!("key_{i}");
+        input.push_str(&format!("  {key} = 1; # {i}\n"));
+        expected.push_str(&format!(
+            "  {key} = 1;{}# {i}\n",
+            " ".repeat(8 - key.len())
+        ));
+    }
+    input.push_str("}\n");
+    expected.push_str("}\n");
+
+    assert_eq!(format(&input, aligned_config()), expected);
+}

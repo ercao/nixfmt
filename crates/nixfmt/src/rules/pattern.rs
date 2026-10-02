@@ -2,7 +2,7 @@ pub(crate) fn rule(
     build_ctx: &crate::builder::BuildCtx,
     node: &rnix::SyntaxNode,
 ) -> Vec<crate::builder::Step> {
-    let mut steps = Vec::new();
+    let mut steps = build_ctx.take_steps();
 
     let pattern = crate::parsers::pattern::parse(build_ctx, node);
 
@@ -102,7 +102,7 @@ pub(crate) fn rule(
 
         // possible inline comment
         if let Some(text) = argument.comment_after {
-            if text.starts_with('#') {
+            if text.text().starts_with('#') {
                 steps.push(crate::builder::Step::Whitespace);
             } else {
                 steps.push(crate::builder::Step::NewLine);

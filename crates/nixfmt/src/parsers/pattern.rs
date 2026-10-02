@@ -1,18 +1,18 @@
 #[derive(Default)]
 pub(crate) struct Argument {
-    pub comments_before: Vec<String>,
-    pub item:            Option<rnix::SyntaxElement>,
-    pub comment_after:   Option<String>,
+    pub comments_before: Vec<rnix::SyntaxToken>,
+    pub item: Option<rnix::SyntaxElement>,
+    pub comment_after: Option<rnix::SyntaxToken>,
 }
 
 #[derive(Default)]
 pub(crate) struct Pattern {
-    pub initial_at:                    Option<rnix::SyntaxElement>,
-    pub comments_after_initial_at:     Vec<String>,
-    pub arguments:                     Vec<Argument>,
-    pub comments_before_curly_b_close: Vec<String>,
-    pub comments_before_end_at:        Vec<String>,
-    pub end_at:                        Option<rnix::SyntaxElement>,
+    pub initial_at: Option<rnix::SyntaxElement>,
+    pub comments_after_initial_at: Vec<rnix::SyntaxToken>,
+    pub arguments: Vec<Argument>,
+    pub comments_before_curly_b_close: Vec<rnix::SyntaxToken>,
+    pub comments_before_end_at: Vec<rnix::SyntaxToken>,
+    pub end_at: Option<rnix::SyntaxElement>,
 }
 
 pub(crate) fn parse(
@@ -59,7 +59,7 @@ pub(crate) fn parse(
                     children.move_next();
                 }
                 rnix::SyntaxKind::TOKEN_COMMENT => {
-                    let content = child.into_token().unwrap().to_string();
+                    let content = child.into_token().unwrap();
 
                     argument.comments_before.push(content);
                     children.move_next();
@@ -101,17 +101,17 @@ pub(crate) fn parse(
                     children.move_next();
                 }
                 rnix::SyntaxKind::TOKEN_COMMENT => {
-                    let content = child.into_token().unwrap().to_string();
+                    let content = child.into_token().unwrap();
 
                     children.move_next();
                     argument.comment_after = Some(content);
                     break;
                 }
                 rnix::SyntaxKind::TOKEN_WHITESPACE => {
-                    let content = child.into_token().unwrap().to_string();
+                    let content = child.into_token().unwrap();
 
                     children.move_next();
-                    if crate::utils::count_newlines(&content) > 0 {
+                    if crate::utils::has_newlines(content.text()) {
                         break;
                     }
                 }

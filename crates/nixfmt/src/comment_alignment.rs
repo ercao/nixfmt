@@ -10,20 +10,15 @@ struct Candidate {
 }
 
 pub(crate) fn align(
-    formatted: &str,
+    formatted: String,
+    comment_offsets: &[usize],
     max_width: Option<NonZeroUsize>,
 ) -> String {
-    let parsed = rnix::Root::parse(formatted);
-    let comment_offsets: Vec<usize> = parsed
-        .syntax()
-        .descendants_with_tokens()
-        .filter_map(rowan::NodeOrToken::into_token)
-        .filter(|token| {
-            token.kind() == rnix::SyntaxKind::TOKEN_COMMENT
-                && token.text().starts_with('#')
-        })
-        .map(|token| usize::from(token.text_range().start()))
-        .collect();
+    // The renderer records comment tokens, excluding hashes inside strings and
+    // block comments without reparsing the formatted text.
+    if comment_offsets.is_empty() {
+        return formatted;
+    }
 
     let mut edits = Vec::new();
     let mut group = Vec::new();
@@ -92,10 +87,24 @@ pub(crate) fn align(
 
     align_group(&group, max_width, &mut edits);
 
-    let mut aligned = formatted.to_owned();
-    for (whitespace, width) in edits.into_iter().rev() {
-        aligned.replace_range(whitespace, &" ".repeat(width));
+    if edits.is_empty() {
+        return formatted;
     }
+
+    let extra: usize = edits
+        .iter()
+        .map(|(whitespace, width)| width.saturating_sub(whitespace.len()))
+        .sum();
+    let mut aligned = String::with_capacity(formatted.len() + extra);
+    let mut offset = 0;
+    // Copy each unchanged span once; in-place insertion would repeatedly move
+    // the rest of the file for large groups of trailing comments.
+    for (whitespace, width) in edits {
+        aligned.push_str(&formatted[offset..whitespace.start]);
+        aligned.extend(std::iter::repeat_n(' ', width));
+        offset = whitespace.end;
+    }
+    aligned.push_str(&formatted[offset..]);
     aligned
 }
 

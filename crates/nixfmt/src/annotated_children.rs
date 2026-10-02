@@ -1,22 +1,22 @@
 pub(crate) enum Trivia {
-    Comment(String),
+    Comment(rnix::SyntaxToken),
     Newlines,
 }
 
 pub(crate) struct Child {
     pub element: rnix::SyntaxElement,
 
-    pub inline_comment:     Option<String>,
+    pub inline_comment: Option<rnix::SyntaxToken>,
     pub has_inline_comment: bool,
 
-    pub trivialities:     Vec<Trivia>,
-    pub has_comments:     bool,
+    pub trivialities: Vec<Trivia>,
+    pub has_comments: bool,
     pub has_trivialities: bool,
 }
 
 /// Emit an inline comment: Whitespace + Comment + NewLine + Pad
 pub(crate) fn emit_inline_comment(
-    inline_comment: &Option<String>,
+    inline_comment: &Option<rnix::SyntaxToken>,
     steps: &mut Vec<crate::builder::Step>,
 ) {
     if let Some(text) = inline_comment {
@@ -78,7 +78,7 @@ pub(crate) fn annotated(
             crate::children::Trivia::Comment(text) => {
                 if inline_comment.is_none()
                     && trivialities.is_empty()
-                    && text.starts_with('#')
+                    && text.text().starts_with('#')
                 {
                     inline_comment = Some(text);
                     skip_next_newline = true;
@@ -86,9 +86,7 @@ pub(crate) fn annotated(
                     trivialities.push(Trivia::Comment(text));
                 }
             }
-            crate::children::Trivia::Whitespace(text) => {
-                let mut newlines = crate::utils::count_newlines(&text);
-
+            crate::children::Trivia::Whitespace(mut newlines) => {
                 if skip_next_newline && newlines > 0 {
                     newlines -= 1;
                     skip_next_newline = false;

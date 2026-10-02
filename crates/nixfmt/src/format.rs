@@ -31,13 +31,17 @@ pub fn in_memory(
         return (Status::Error(errors[0].to_string()), before);
     }
 
+    let layout_cache = Default::default();
+    let step_buffers = Default::default();
     let mut build_ctx = crate::builder::BuildCtx {
         config,
+        layout_cache: &layout_cache,
+        step_buffers: &step_buffers,
         force_wide: false,
         force_wide_success: true,
         force_wide_width_exceeded: false,
         indentation: 0,
-        path,
+        path: &path,
         pos_new: crate::position::Position::default(),
         pos_old: crate::position::Position::default(),
         vertical: true,
@@ -46,12 +50,16 @@ pub fn in_memory(
 
     let root = parsed.syntax();
 
-    let mut after =
-        crate::builder::build(&mut build_ctx, root.into()).unwrap().to_string();
-
-    if config.align_trailing_comments {
-        after = crate::comment_alignment::align(&after, config.max_width);
-    }
+    let output = crate::builder::build(&mut build_ctx, root.into()).unwrap();
+    let after = if config.align_trailing_comments {
+        crate::comment_alignment::align(
+            output.text,
+            &output.comment_offsets,
+            config.max_width,
+        )
+    } else {
+        output.text
+    };
 
     if before == after {
         (Status::Changed(false), after)

@@ -1,11 +1,5 @@
 use crate::config::Indentation;
 
-const PLACEHOLDER: &str = "\
-    4d13159079d76c1398db5f3ab0c62325\
-    f884b545e63226f7ec8aad96c52e13e8\
-    6b219abc9462c41b87e47344752e9940\
-    abf9353565f69a5db5c672b89372b84c";
-
 /// Returns the indentation unit to use inside `''..''` string content.
 ///
 /// Nix only strips leading **spaces** when evaluating indented strings.
@@ -22,7 +16,7 @@ pub(crate) fn rule(
     build_ctx: &crate::builder::BuildCtx,
     node: &rnix::SyntaxNode,
 ) -> Vec<crate::builder::Step> {
-    let mut steps = Vec::new();
+    let mut steps = build_ctx.take_steps();
 
     let mut children = crate::children::Children::new(build_ctx, node);
 
@@ -40,154 +34,98 @@ pub(crate) fn rule(
             }
         }
     } else {
-        let elements: Vec<rnix::SyntaxElement> =
-            children.get_remaining().to_vec();
-
-        let mut interpolations = elements
-            .iter()
-            .filter(|e| e.kind() != rnix::SyntaxKind::TOKEN_STRING_CONTENT);
-
-        let content: String = elements[0..elements.len() - 1]
-            .iter()
-            .map(|element| match element.kind() {
-                rnix::SyntaxKind::TOKEN_STRING_CONTENT => {
-                    element.as_token().unwrap().to_string()
-                }
-                _ => PLACEHOLDER.to_string(),
-            })
-            .collect();
-
-        let lines: Vec<&str> = content.split('\n').collect();
-
-        // IMPORTANT: Nix preserves trailing whitespace in multiline strings.
-        // We must NOT trim trailing whitespace from content lines — it's semantically significant.
-        // However, trim the last line IF it's whitespace-only (it's just formatting, not content).
-        let mut lines: Vec<String> = lines
-            .iter()
-            .enumerate()
-            .map(|(i, line)| {
-                // Only trim the very last line if it's whitespace-only
-                if i == lines.len() - 1 && line.trim().is_empty() {
-                    line.trim_end().to_string()
-                } else {
-                    line.to_string()
-                }
-            })
-            .collect();
-
-        let mut indentation: usize = usize::MAX;
-        for line in lines.iter() {
-            let line = line.trim_end();
-
-            if !line.is_empty() {
-                // Only count leading spaces, not tabs. Nix only strips spaces
-                // from multiline strings.
-                let leading_spaces = line.chars().count()
-                    - line.trim_start_matches(' ').chars().count();
-                indentation = usize::min(indentation, leading_spaces);
-            }
-        }
-        if indentation == usize::MAX {
-            indentation = 0;
-        };
-
-        // Dedent everything as much as possible
-        lines = lines
-            .iter()
-            .map(|line| {
-                if indentation < line.chars().count() {
-                    line.chars().skip(indentation).collect::<String>()
-                } else {
-                    line.to_string()
-                }
-            })
-            .collect();
-
-        // Indent everything
-        if lines.len() > 1
-            && lines.iter().filter(|line| !line.trim().is_empty()).count() >= 1
-        {
-            lines = lines
-                .iter()
-                .map(|line| {
-                    if !line.trim().is_empty() {
-                        format!(
-                            "{}{}",
-                            string_content_indent_unit(
-                                build_ctx.config.indentation
-                            ),
-                            line
-                        )
-                    } else {
-                        line.to_string()
-                    }
-                })
-                .collect();
-        }
-
-        for (index, line) in lines.iter().enumerate() {
-            let portions: Vec<String> = line
-                .split(PLACEHOLDER)
-                .map(|portion| portion.to_string())
-                .collect();
-
-            if portions.len() == 1 {
-                if !portions[0].is_empty() || index + 1 == lines.len() {
-                    if lines.len() > 1 {
-                        let content_pad = string_content_indent_unit(
-                            build_ctx.config.indentation,
-                        )
-                        .repeat(build_ctx.indentation);
-                        if !content_pad.is_empty() {
-                            steps.push(crate::builder::Step::Token(
-                                rnix::SyntaxKind::TOKEN_WHITESPACE,
-                                content_pad,
-                            ));
-                        }
-                    }
-                    steps.push(crate::builder::Step::Token(
-                        rnix::SyntaxKind::TOKEN_STRING_CONTENT,
-                        portions[0].to_string(),
-                    ));
-                }
+        let elements = children.get_remaining();
+        let (closing, elements) = elements.split_last().unwrap();
+        let mut content =
+            String::with_capacity(usize::from(node.text_range().len()));
+        let mut interpolations = Vec::new();
+        for element in elements {
+            if element.kind() == rnix::SyntaxKind::TOKEN_STRING_CONTENT {
+                content.push_str(element.as_token().unwrap().text());
             } else {
-                if lines.len() > 1 {
-                    let content_pad = string_content_indent_unit(
-                        build_ctx.config.indentation,
-                    )
-                    .repeat(build_ctx.indentation);
-                    if !content_pad.is_empty() {
-                        steps.push(crate::builder::Step::Token(
-                            rnix::SyntaxKind::TOKEN_WHITESPACE,
-                            content_pad,
-                        ));
-                    }
+                // A non-whitespace marker participates in indentation detection.
+                // Its recorded offset, not its text, identifies the interpolation.
+                interpolations.push((content.len(), element));
+                content.push('x');
+            }
+        }
+
+        let mut lines: Vec<&str> = content.split('\n').collect();
+        // Trailing spaces and tabs belong to the string value. Only the final
+        // whitespace-only line is formatting before the closing delimiter.
+        if let Some(last) = lines.last_mut() {
+            if last.trim().is_empty() {
+                *last = "";
+            }
+        }
+        // Nix strips leading spaces, not tabs or other Unicode whitespace.
+        let indentation = lines
+            .iter()
+            .filter(|line| !line.trim_end().is_empty())
+            .map(|line| line.bytes().take_while(|byte| *byte == b' ').count())
+            .min()
+            .unwrap_or(0);
+        let multiline = lines.len() > 1;
+        let unit = string_content_indent_unit(build_ctx.config.indentation);
+        let content_pad = if multiline {
+            unit.repeat(build_ctx.indentation)
+        } else {
+            String::new()
+        };
+        let mut interpolations = interpolations.into_iter().peekable();
+        let mut offset = 0;
+
+        for (index, original) in lines.iter().enumerate() {
+            // Preserve the existing treatment of short whitespace-only lines;
+            // char_indices keeps slicing valid for tabs and Unicode content.
+            let skipped = original
+                .char_indices()
+                .nth(indentation)
+                .map_or(0, |(offset, _)| offset);
+            let line = &original[skipped..];
+            let line_end = offset + original.len();
+            if !line.is_empty() || index + 1 == lines.len() {
+                if !content_pad.is_empty() {
+                    steps.push(crate::builder::Step::Token(
+                        rnix::SyntaxKind::TOKEN_WHITESPACE,
+                        content_pad.clone(),
+                    ));
                 }
-                for (index, portion) in portions.iter().enumerate() {
+                let mut portion =
+                    String::with_capacity(unit.len() + line.len());
+                if multiline && !line.trim().is_empty() {
+                    portion.push_str(unit);
+                }
+                let mut cursor = offset + skipped;
+                while interpolations
+                    .peek()
+                    .is_some_and(|(position, _)| *position < line_end)
+                {
+                    let (position, element) = interpolations.next().unwrap();
+                    portion.push_str(&content[cursor..position]);
                     steps.push(crate::builder::Step::Token(
                         rnix::SyntaxKind::TOKEN_STRING_CONTENT,
-                        portion.to_string(),
+                        std::mem::take(&mut portion),
                     ));
-
-                    if index + 1 != portions.len() {
-                        steps.push(crate::builder::Step::Indent);
-                        steps.push(crate::builder::Step::FormatWider(
-                            interpolations.next().unwrap().clone(),
-                        ));
-                        steps.push(crate::builder::Step::Dedent);
-                    }
+                    steps.push(crate::builder::Step::Indent);
+                    steps.push(crate::builder::Step::FormatWider(
+                        element.clone(),
+                    ));
+                    steps.push(crate::builder::Step::Dedent);
+                    cursor = position + 1;
                 }
+                portion.push_str(&content[cursor..line_end]);
+                steps.push(crate::builder::Step::Token(
+                    rnix::SyntaxKind::TOKEN_STRING_CONTENT,
+                    portion,
+                ));
             }
-
             if index + 1 < lines.len() {
                 steps.push(crate::builder::Step::NewLine);
             }
+            offset = line_end + 1;
         }
-
-        for interpolation in interpolations {
-            steps
-                .push(crate::builder::Step::FormatWider(interpolation.clone()));
-        }
+        steps.push(crate::builder::Step::FormatWider(closing.clone()));
     }
 
     steps

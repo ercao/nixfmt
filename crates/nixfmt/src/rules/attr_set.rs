@@ -2,41 +2,28 @@ pub(crate) fn rule(
     build_ctx: &crate::builder::BuildCtx,
     node: &rnix::SyntaxNode,
 ) -> Vec<crate::builder::Step> {
-    let mut steps = Vec::new();
+    let mut steps = build_ctx.take_steps();
 
     let mut children = crate::children::Children::new(build_ctx, node);
 
-    let items_count = node
+    let (items_count, multiline) = node
         .children_with_tokens()
         .skip_while(|element| element.kind() != rnix::SyntaxKind::TOKEN_L_BRACE)
         .take_while(|element| element.kind() != rnix::SyntaxKind::TOKEN_R_BRACE)
-        .filter(|element| {
-            matches!(
+        .fold((0, false), |(count, multiline), element| {
+            let item = matches!(
                 element.kind(),
                 rnix::SyntaxKind::NODE_ATTRPATH_VALUE
                     | rnix::SyntaxKind::NODE_INHERIT
                     | rnix::SyntaxKind::NODE_INHERIT_FROM
                     | rnix::SyntaxKind::TOKEN_COMMENT
-            )
-        })
-        .count();
-
-    let vertical = build_ctx.vertical_due_to_width
-        || node
-            .children_with_tokens()
-            .skip_while(|element| {
-                element.kind() != rnix::SyntaxKind::TOKEN_L_BRACE
-            })
-            .skip(1)
-            .take_while(|element| {
-                element.kind() != rnix::SyntaxKind::TOKEN_R_BRACE
-            })
-            .any(|element| match element {
-                rnix::SyntaxElement::Node(_) => false,
-                rnix::SyntaxElement::Token(token) => {
-                    token.text().contains('\n')
-                }
-            });
+            );
+            let has_newline = element
+                .as_token()
+                .is_some_and(|token| token.text().contains('\n'));
+            (count + usize::from(item), multiline || has_newline)
+        });
+    let vertical = build_ctx.vertical_due_to_width || multiline;
 
     // rec
     let child = children.peek_next().unwrap();
@@ -81,7 +68,7 @@ pub(crate) fn rule(
         // /**/
         children.drain_trivia(|element| match element {
             crate::children::Trivia::Comment(text) => {
-                if inline_next_comment && text.starts_with('#') {
+                if inline_next_comment && text.text().starts_with('#') {
                     steps.push(crate::builder::Step::Whitespace);
                 } else {
                     if matches!(
@@ -97,9 +84,7 @@ pub(crate) fn rule(
                 item_index += 1;
                 inline_next_comment = false;
             }
-            crate::children::Trivia::Whitespace(text) => {
-                let newlines = crate::utils::count_newlines(&text);
-
+            crate::children::Trivia::Whitespace(newlines) => {
                 if newlines > 1 && item_index > 0 && item_index < items_count {
                     steps.push(crate::builder::Step::NewLine);
                 }

@@ -1,9 +1,9 @@
 pub(crate) fn has_newlines(string: &str) -> bool {
-    string.chars().any(|c| c == '\n')
+    string.contains('\n')
 }
 
 pub(crate) fn count_newlines(string: &str) -> usize {
-    string.chars().filter(|c| *c == '\n').count()
+    string.bytes().filter(|byte| *byte == b'\n').count()
 }
 
 pub(crate) fn second_through_penultimate_line_are_indented(
@@ -15,7 +15,7 @@ pub(crate) fn second_through_penultimate_line_are_indented(
         crate::builder::BuildCtx { force_wide: false, ..build_ctx.clone() };
 
     let formatted =
-        crate::builder::build(&mut build_ctx, element).unwrap().to_string();
+        crate::builder::build(&mut build_ctx, element).unwrap().text;
 
     let formatted_lines: Vec<&str> = formatted.split('\n').collect();
 
