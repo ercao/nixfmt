@@ -23,7 +23,7 @@ walkdir = { version = "*", default-features = false, features = [] }
 authors = ["Kevin Amado <kamadorueda@gmail.com>"]
 description = "The Uncompromising Nix Code Formatter"
 edition = "2021"
-license = "Unlicense"
+license = "MIT"
 name = "nixfmt_cli"
 repository = "https://github.com/kamadorueda/nixfmt"
 version = "0.1.0"

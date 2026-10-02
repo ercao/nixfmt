@@ -5,6 +5,11 @@
 > [!NOTE]
 > This is a personal Alejandra-compatible fork. It is not the NixOS/nixfmt project or the `nixfmt` package from nixpkgs.
 
+This fork is distributed under the [MIT License](./LICENSE). It is based on
+[Alejandra](https://github.com/kamadorueda/alejandra), released under the
+[Unlicense](https://unlicense.org/). The copyright notice covers this fork's
+copyrightable contributions; existing rights to the upstream code remain unchanged.
+
 <p align="center">
   <a
     href="https://buildkite.com/kamadorueda/nixfmt"
@@ -25,11 +30,11 @@
     </img>
   </a>
   <a
-    href="https://github.com/kamadorueda/nixfmt/blob/main/UNLICENSE"
+    href="./LICENSE"
   >
     <img
-      alt="License: The Unlicense"
-      src="https://img.shields.io/badge/license-The Unlicense-green.svg"
+      alt="License: MIT"
+      src="https://img.shields.io/badge/license-MIT-green.svg"
     >
   </a>
   <a

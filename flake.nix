@@ -44,7 +44,7 @@
         meta = {
           description = "The Uncompromising Nix Code Formatter.";
           homepage = "https://github.com/kamadorueda/nixfmt";
-          license = final.lib.licenses.unlicense;
+          license = final.lib.licenses.mit;
           maintainers = [final.lib.maintainers.kamadorueda];
           platforms = final.lib.systems.doubles.all;
           mainProgram = "nixfmt";

@@ -13,6 +13,7 @@ crate-type = ["cdylib"]
 authors = ["Kevin Amado <kamadorueda@gmail.com>"]
 description = "The Uncompromising Nix Code Formatter"
 edition = "2021"
+license = "MIT"
 name = "nixfmt_wasm"
 repository = "https://github.com/kamadorueda/nixfmt"
 version = "0.1.0"
