@@ -12,15 +12,6 @@ copyrightable contributions; existing rights to the upstream code remain unchang
 
 <p align="center">
   <a
-    href="https://buildkite.com/kamadorueda/nixfmt"
-  >
-    <img
-      alt="CI/CD"
-      src="https://badge.buildkite.com/67d170860f5630bbc776a97fb0be9c88a97c92860c91f77aa0.svg?branch=main"
-    >
-    </img>
-  </a>
-  <a
     href="https://coveralls.io/github/kamadorueda/nixfmt?branch=main"
   >
     <img
@@ -137,12 +128,6 @@ $ /path/to/nixfmt --help
 
 ### Nix installation
 
-- Nix stable:
-
-  ```bash
-  $ nix-env -ivf https://github.com/kamadorueda/nixfmt/tarball/0.1.0
-  ```
-
 - Nix with [Flakes](https://wiki.nixos.org/wiki/Flakes):
 
   ```bash
@@ -156,21 +141,6 @@ $ nixfmt --help
 ```
 
 ### NixOS installation
-
-- Nix stable:
-
-  ```nix
-  let
-    nixfmt =
-      (import (builtins.fetchTarball {
-        url = "https://github.com/kamadorueda/nixfmt/tarball/0.1.0";
-        sha256 = "0000000000000000000000000000000000000000000000000000";
-      }) {})
-      .outPath;
-  in {
-    environment.systemPackages = [nixfmt];
-  }
-  ```
 
 - Nix with [Flakes](https://wiki.nixos.org/wiki/Flakes):
 
