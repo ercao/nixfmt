@@ -77,7 +77,7 @@ copyrightable contributions; existing rights to the upstream code remain unchang
   and then we applied the feedback of developers
   who have used [Nix](https://nixos.org) at scale
   for several years,
-  producing a very **well-grounded** [**style guide**](./STYLE.md).
+  producing a very **well-grounded** formatting style.
   For everything else, some pieces of the style are [configurable](#configuration-options).
 
 - ✔️ **Transparent**
@@ -86,18 +86,6 @@ copyrightable contributions; existing rights to the upstream code remain unchang
 
   Humans care about the content,
   machines about the style!
-
-- ✔️ **Native**
-
-  We integrate with common code editors and workflows:
-
-  - [Visual Studio Code](https://marketplace.visualstudio.com/items?itemName=kamadorueda.nixfmt)
-  - [Neovim](./integrations/neovim/README.md)
-  - [Vim](./integrations/vim/README.md)
-  - [GNU Emacs](./integrations/gnu-emacs/README.md)
-  - [Doom Emacs](./integrations/doom-emacs/README.md)
-  - [Pre-commit](./integrations/pre-commit/README.md)
-  - [Pre-commit-hooks.nix](./integrations/pre-commit-hooks-nix/README.md)
 
 ## Getting started
 
@@ -209,10 +197,6 @@ Our public API consists of:
   and stdout.
 
 With the exception of those explicitly marked as "experimental".
-
-## Changelog
-
-Please read: [CHANGELOG](./CHANGELOG.md).
 
 ## Contributors
 
