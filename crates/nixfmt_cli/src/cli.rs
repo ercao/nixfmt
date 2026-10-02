@@ -81,10 +81,28 @@ fn format_stdin(config: Config, verbosity: Verbosity) -> FormattedPath {
         .expect("Unable to read stdin.");
 
     let (status, data) =
-        nixfmt::format::in_memory(path.clone(), before.clone(), config);
+        nixfmt::format::in_memory(path.clone(), before, config);
 
     print!("{data}");
 
+    FormattedPath { path, status }
+}
+
+fn format_path(
+    path: String,
+    config: Config,
+    in_place: bool,
+    verbosity: Verbosity,
+) -> FormattedPath {
+    let status = nixfmt::format::in_fs(path.clone(), config, in_place);
+    if let nixfmt::format::Status::Changed(changed) = status {
+        if changed && verbosity.allows_info() {
+            println!(
+                "{}: {path}",
+                if in_place { "Formatted" } else { "Requires formatting" },
+            );
+        }
+    }
     FormattedPath { path, status }
 }
 
@@ -96,6 +114,7 @@ fn format_paths(
     verbosity: Verbosity,
 ) -> Vec<FormattedPath> {
     let paths_len = paths.len();
+    let threads = threads.min(paths_len.max(1));
 
     if verbosity.allows_info() {
         eprintln!(
@@ -104,6 +123,13 @@ fn format_paths(
             if threads == 1 { "" } else { "s" },
         );
         eprintln!();
+    }
+
+    if threads == 1 {
+        return paths
+            .into_iter()
+            .map(|path| format_path(path, config, in_place, verbosity))
+            .collect();
     }
 
     let pool = futures::executor::ThreadPoolBuilder::new()
@@ -115,23 +141,7 @@ fn format_paths(
         .into_iter()
         .map(|path| {
             pool.spawn_with_handle(async move {
-                let status =
-                    nixfmt::format::in_fs(path.clone(), config, in_place);
-
-                if let nixfmt::format::Status::Changed(changed) = status {
-                    if changed && verbosity.allows_info() {
-                        println!(
-                            "{}: {path}",
-                            if in_place {
-                                "Formatted"
-                            } else {
-                                "Requires formatting"
-                            },
-                        );
-                    }
-                }
-
-                FormattedPath { path: path.clone(), status }
+                format_path(path, config, in_place, verbosity)
             })
             .expect("Unable to spawn formatting task.")
         })

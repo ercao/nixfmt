@@ -305,6 +305,54 @@ fn loads_trailing_comment_alignment_from_explicit_config() {
     std::fs::remove_dir_all(temp_dir).unwrap();
 }
 
+#[test]
+fn single_file_uses_one_worker_even_when_more_are_requested() {
+    let dir = temp_dir();
+    let path = dir.join("one.nix");
+    std::fs::write(&path, "[]").unwrap();
+    let output = Command::new(env!("CARGO_BIN_EXE_nixfmt"))
+        .current_dir(&dir)
+        .args(["--threads", "8"])
+        .arg(&path)
+        .output()
+        .unwrap();
+    assert!(output.status.success());
+    assert!(String::from_utf8(output.stderr)
+        .unwrap()
+        .contains("using 1 thread."));
+    assert_eq!(std::fs::read_to_string(&path).unwrap(), "[]\n");
+    std::fs::remove_dir_all(dir).unwrap();
+}
+
+#[test]
+fn sequential_and_parallel_batches_preserve_check_and_write_behavior() {
+    for threads in ["1", "2"] {
+        let dir = temp_dir();
+        let path = dir.join("one.nix");
+        let other = dir.join("two.nix");
+        std::fs::write(&path, "[a b]").unwrap();
+        std::fs::write(&other, "{a=1;}").unwrap();
+        let run = |check| {
+            let mut command = Command::new(env!("CARGO_BIN_EXE_nixfmt"));
+            command
+                .current_dir(&dir)
+                .args(["--quiet", "--threads", threads])
+                .arg(&dir);
+            if check {
+                command.arg("--check");
+            }
+            command.output().unwrap()
+        };
+        assert_eq!(run(true).status.code(), Some(2));
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "[a b]");
+        assert!(run(false).status.success());
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), "[ a b ]\n");
+        assert_eq!(std::fs::read_to_string(&other).unwrap(), "{ a = 1; }\n");
+        assert!(run(true).status.success());
+        std::fs::remove_dir_all(dir).unwrap();
+    }
+}
+
 fn temp_dir() -> PathBuf {
     let unique = NEXT_TEMP_DIR.fetch_add(1, Ordering::Relaxed);
     let path = std::env::temp_dir()
